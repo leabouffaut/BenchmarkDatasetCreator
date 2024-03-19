@@ -20,8 +20,7 @@ It does NOT:
 Filter the audio input beyond what is needed for resampling
 Normalize the audio file amplitude
 For example, this schematic view presents (top) a raven project with a selection table associated with several audio files of different lengths (bottom), the standardized benchmark clips, and associated annotations. Note that annotations at the junction between two export files and those in the remaining audio, which are too short compared to the selected export audio file duration, are ignored.
- 
-![method_schematic.png](attachment:bc182ae8-6eac-49fe-a9fc-b62860de37b7.png)
+![Method schematic]([http://url/to/img.png](https://github.com/leabouffaut/BenchmarkDatasetCreator/blob/main/illustrations/method_schematic.png))
 
 ### Necessary information in selection tables
 This project uses Raven Pro 1.6 selection tables. 
