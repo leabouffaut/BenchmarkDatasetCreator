@@ -1,0 +1,38 @@
+# Jupyter notebooks
+.ipynb_checkpoints
+
+# Development jupyter notebooks
+devnotebooks/
+dev.ipynb
+
+# macOS system file
+.DS_Store
+
+# Image files
+*.png
+
+# PyCharm IDE specific files
+.idea
+
+# Python virtual environment
+venv/
+
+# Build artifacts
+build/
+
+# Python requirements file
+requirements.txt
+
+# Python package metadata
+*.egg-info
+
+# Compiled Python files
+__pycache__/
+*.pyc
+
+
+# Data folder 
+benchmark_data/
+
+# Temporary files
+*.tmp
