@@ -1,0 +1,2 @@
+Selection	View	Channel	Begin Time (s)	End Time (s)	Low Freq (Hz)	High Freq (Hz)	Begin File	Original Begin Time (s)	Tags
+1	Spectrogram	1	122.49699999999996	125.52700000000004	75.0	231.2	2013_UnivMD_Maryland_71485_71485MD02_002K_M11_multi_20150626_031500Z_2kHz_ch03_0600s.flac	722.497	NARW
