@@ -153,7 +153,7 @@ cython_debug/
 
 
 # macOS system file
-.DS_Store
+*.DS_Store
 
 
 # Python requirements file
