@@ -155,12 +155,9 @@ cython_debug/
 # macOS system file
 .DS_Store
 
-# Python virtual environment
-venv/
 
 # Python requirements file
 requirements.txt
-
 
 # Data folder 
 benchmark_data/
