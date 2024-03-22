@@ -130,8 +130,42 @@ def create_path(export_settings):
         else:
             # Prompt the user to change the export folder path
             print(f"Please change the export folder path")
-            
-            
+
+def get_bitdepth(export_settings):
+    """
+    Get user-input bit depth.
+    
+    Input:
+        - export_settings: Dictionary containing export settings.
+    
+    Output:
+        - bit_depth: bit depth
+    """
+    authorized_user_bit_depth = [8, 16, 24]
+    sf_flac_bit_depth = ['PCM_S8', 'PCM_16', 'PCM_24'] # This is only valid for flac files. 
+                                                       # write sf.available_subtypes('WAV') to get the bit depth 
+                                                       # format supported for wav files
+    
+    bit_depth = sf_flac_bit_depth[authorized_user_bit_depth.index(export_settings['Bit depth'])]
+    return bit_depth
+
+def get_print_fs(fs_original):
+    """
+    Take note of the sampling frequency for the file naming system.
+    Input:
+        - fs_original: Original sampling frequency.
+        
+    Output:
+        - fs_original_print: fs to print
+    
+    """
+    if fs_original >= 1000:
+        fs_original_print = str(int(np.floor(fs_original/1000)))+'kHz'
+    else:
+        fs_original_print = str(int(fs_original)) + 'Hz'
+    
+    return fs_original_print
+
 # ------------------------
 #  Data checking functions
 def check_bitdepth(export_settings):
@@ -139,7 +173,13 @@ def check_bitdepth(export_settings):
     Checks if the user-input bit depth is a possible value, based on formats supported by soundfile.write for FLAC files.
 
     Displays an error message if the value is not supported.
+    
+    Inputs:
+        - export_settings: Dictionary containing export settings.
+    Output:
+        - Printed text indicating if the bit depth is not supported
     """
+    
     # List of authorized bit depths user inputs and corresponding soundfile FLAC bit depths
     authorized_user_bit_depth = [8, 16, 24]
     sf_flac_bit_depth = ['PCM_S8', 'PCM_16', 'PCM_24']
@@ -179,11 +219,89 @@ def check_selection_table(df, label_key):
         print(f'Error: The following field(s) is missing from the selection table:', end='\n--> ') 
         for field in missing:
             print(field)
+            
+def check_selection_table_folder(df):
+    """
+    This function checks whether all of the required fields are present in a selection table without specifying the annotation column.
+
+    Inputs:
+        - df: The dataframe of the selection table.
+        - label_key: The name of the field for the label column.
+
+    Output:
+        - Printed text indicating whether the required fields are present.
+    """
+
+    # List of all desired fields in the selection table
+    wanted_fields = ['Begin Time (s)', 'End Time (s)', 'Low Freq (Hz)', 'High Freq (Hz)', 'File Offset (s)', 'Begin Path']
+
+    # Check if each desired field is present in the selection table, and if not, add it to the 'missing' list
+    missing = []
+    for item in wanted_fields:
+        if item not in df.columns:
+            missing.append(item)
+
+    return missing
 
             
 # ----------------------------------------------
 # Manipulate existing selection tables functions
 
+def load_selection_table(filename_selection_table):
+    
+    # If filename_selection_table is a file
+    if os.path.isfile(filename_selection_table):
+        selection_table_df = pd.read_csv(filename_selection_table, sep='\t')
+        
+        # Check if all necessary fields are present
+        check_selection_table(selection_table_df, label_key)
+        
+    # If filename_selection_table is a folder
+    elif os.path.isdir(filename_selection_table):
+        # Get the list of files
+        seltab_list = os.listdir(filename_selection_table)
+
+        # Create empty list for missing fields
+        missing = {}
+        for ff in seltab_list:
+            # Open selection table
+            selection_table_df_temp = pd.read_csv(os.path.join(filename_selection_table,ff), sep='\t')
+
+            # Check that all the files have the same fields
+            missing_file = check_selection_table_folder(selection_table_df_temp)
+
+            # Add the file and missing field to the dictionary if missing_file not empty
+            if missing_file:
+                missing[ff] = missing_file
+
+            # If no entries are missing and this is the first selection table, create the output big selection table
+            elif (not missing_file) & ('selection_table_df' not in locals()):
+                selection_table_df = selection_table_df_temp
+
+             # If no entries are missing and selection_table_df exists   
+            elif (not missing_file) & ('selection_table_df' in locals()):
+                selection_table_df = selection_table_df.append(selection_table_df_temp)
+
+        # If all required fields are in 
+        if not missing:
+            print('All required fields are in the selection tables')
+
+        else:
+            # Inform the user about missing fields in the selection table
+            print(f'Error: The following field(s) is missing from the selection table:', end='\n ') 
+            for keys, value in missing.items():
+                print(f'--> in {keys}, the field(s) {value} are missing')
+
+            # Empty the dataframe
+            selection_table_df = pd.DataFrame({'A' : []})
+
+    else: 
+        print(f"Please edit filename_selection_table to an existing path + folder or file name")
+
+    return selection_table_df
+
+
+    
 def get_number_clips(list_audio_files, clip_duration):
     """
     This function reads the durations of all audio files in the given list and compares them to the desired clip duration.
@@ -366,8 +484,6 @@ def benchmark_size_estimator(selection_table_df, export_settings, label_key):
     """
     
     # 1) Run tests on the selection table
-    # Test if all necessary fields are present
-    check_selection_table(selection_table_df, label_key)
 
     # List unique audio files in the selection table
     unique_audiofiles = selection_table_df['Begin Path'].unique()
@@ -389,8 +505,8 @@ def benchmark_size_estimator(selection_table_df, export_settings, label_key):
         x, fs_original = librosa.load(unique_audiofiles[ind_af], offset=0.0, duration=1, sr=None, mono=False)
 
         # Test if x is multi-channel
-        nb_ch, np_samples= np.shape(x)
-
+        nb_ch = x.ndim
+        
         # Go through each channel 
         for ch in range(nb_ch): 
             # From the selection table, get the subset of selections that correspond to this specific audio file and channel
@@ -442,9 +558,9 @@ def benchmark_size_estimator(selection_table_df, export_settings, label_key):
     print(f"Estimated file size ... {int(np.round(audio_file_size_byte*10**(-6)*flac_compression))} MB")
     
     if np.round(dataset_size_byte*10**(-6)*flac_compression)>999:
-        print(f"Estimated Benchmark dataset size ... {int(np.round(dataset_size_byte*10**(-9)*flac_compression))} GB")
+        print(f" > Estimated Benchmark dataset size ... {int(np.round(dataset_size_byte*10**(-9)*flac_compression))} GB")
     else:
-        print(f"Estimated Benchmark dataset size ... {int(np.round(dataset_size_byte*10**(-6)*flac_compression))} MB")
+        print(f" > Estimated Benchmark dataset size ... {int(np.round(dataset_size_byte*10**(-6)*flac_compression))} MB")
         
 
 def benchmark_creator(selection_table_df, export_settings, label_key):
@@ -463,27 +579,19 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
     unique_audiofiles = selection_table_df['Begin Path'].unique()
     
     # Get the bit depth
-    authorized_user_bit_depth = [8, 16, 24]
-    sf_flac_bit_depth = ['PCM_S8', 'PCM_16', 'PCM_24'] # This is only valid for flac files. 
-                                                       # write sf.available_subtypes('WAV') to get the bit depth 
-                                                       # format supported for wav files
-    
-    bit_depth = sf_flac_bit_depth[authorized_user_bit_depth.index(export_settings['Bit depth'])]
-    
+    bit_depth = get_bitdepth(export_settings)
+
     # Go through each audio file
     for ind_af in tqdm(range(len(unique_audiofiles))):
 
         # Load a second of the file to get the metadata
         x, fs_original = librosa.load(unique_audiofiles[ind_af], offset=0.0, duration=1, sr=None, mono=False)
-
+            
         # Take note of the sampling frequency for the file naming system
-        if fs_original >= 1000:
-            fs_original_print = str(int(np.floor(fs_original/1000)))+'kHz'
-        else:
-            fs_original_print = str(int(fs_original)) + 'Hz'
+        fs_original_print= get_print_fs(fs_original)
         
         # Test if x is multi-channel
-        nb_ch, np_samples= np.shape(x)
+        nb_ch = x.ndim
 
         # Go through each channel 
         for ch in range(nb_ch): 
@@ -526,7 +634,8 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
                                                       duration=export_settings['Audio duration (s)'], 
                                                       sr=export_settings['fs (Hz)'], mono=False, res_type='soxr_vhq')
                             # Keep the wanted channel
-                            x_clip = x_clip[ch,:]
+                            if nb_ch> 1:
+                                x_clip = x_clip[ch,:]
 
                             # Save clip
                             sf.write(os.path.join(export_settings['Audio export folder'], export_filename +'.flac'),
