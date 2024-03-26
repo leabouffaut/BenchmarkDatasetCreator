@@ -373,6 +373,26 @@ def update_labels(selection_table_df, labels_dict, label_key):
 # -----------------------
 # Write outputs functions
 
+def save_audioclip(audiofile, export_settings, export_filename, start_clip, bit_depth, channel):
+    
+    # Test if the export audio file already exists otherwise, create it
+    if not os.path.exists(os.path.join(export_settings['Audio export folder'], export_filename +'.flac')):
+
+        # Load and resample the the audio
+        x_clip, fs = librosa.load(audiofile, offset=start_clip, 
+                                  duration=export_settings['Audio duration (s)'], 
+                                  sr=export_settings['fs (Hz)'], mono=False, res_type='soxr_vhq')
+        # Test if x is multi-channel
+        nb_ch = x_clip.ndim
+        # Keep the wanted channel
+        if nb_ch> 1:
+            x_clip = x_clip[channel,:]
+
+        # Save clip
+        sf.write(os.path.join(export_settings['Audio export folder'], export_filename +'.flac'),
+                 x_clip, fs, bit_depth)
+
+    
 def write_selection_table(filename, entry, export_label='Tag'):
     """
     This function creates a selection table, appends entries, and saves it.
@@ -467,6 +487,53 @@ def map_audio_selection(filename, audio_filename, selection_filename):
     with open(filename, 'a') as f:
         f.write('\t'.join([audio_filename, selection_filename]) + '\n')
         f.close()   
+
+
+def exports(export_settings, selection_table_af_df, save_sel_dict):
+    """
+    This function create all exports.
+    
+    """
+    # Get the export audio file name in the format
+    # <Project>_<OriginalFileName>_<OriginalSamplingFrequency>_<OriginalChannel>.flac
+    export_filename = (export_settings['Original project name'] + '_' + 
+                       os.path.splitext(os.path.basename(selection_table_af_df['Begin Path'].iloc[save_sel_dict['Selection #']]))[0] + '_' + 
+                       str(save_sel_dict['fs_original_print']) + '_' + 'ch' + "{:02d}".format(save_sel_dict['Channel']+1) + '_' + 
+                       "{:04d}".format(int(np.floor(save_sel_dict['Start export clip']))) +'s')
+    
+    # Export audio
+    audiofile = selection_table_af_df['Begin Path'].iloc[save_sel_dict['Selection #']]
+    save_audioclip(audiofile, export_settings, export_filename, save_sel_dict['Start export clip'], save_sel_dict['Bit depth'], save_sel_dict['Channel'])
+
+    # Create/fill the selection table for this clip with the format 
+    #['Selection', 'View', 'Channel', 'Begin Time (s)', 'End Time (s)', 'Low Freq (Hz)', 
+    # 'High Freq (Hz)', 'Begin File', 'Original Begin Time (s)', 'Tag']
+    selection = [0, # Placeholder, changes when adding the entry to the file writing the file
+                 'Spectrogram', # All selections are on the Spectrogram
+                 1, # We create monochannel audio so all is on channel 1
+                 save_sel_dict['Begin Time (s)'] - save_sel_dict['Start export clip'],
+                 save_sel_dict['End Time (s)'] - save_sel_dict['Start export clip'],
+                 selection_table_af_df['Low Freq (Hz)'].iloc[save_sel_dict['Selection #']],
+                 selection_table_af_df['High Freq (Hz)'].iloc[save_sel_dict['Selection #']],
+                 export_filename +'.flac',
+                 selection_table_af_df['File Offset (s)'].iloc[save_sel_dict['Selection #']],
+                 selection_table_af_df[save_sel_dict['Label key']].iloc[save_sel_dict['Selection #']]]
+
+    # Write in the selection table (.txt)
+    write_selection_table(os.path.join(export_settings['Annotation export folder'], export_filename +'.txt'), 
+                          selection, export_label=export_settings['Export label'])
+
+    # Write in the golbal csv file (.csv)
+    write_annotation_csv(os.path.join(export_settings['Export folder'], 
+                                      export_settings['Original project name'],  
+                                      export_settings['Original project name'] + '_annotations.csv'), 
+                         selection, export_label=export_settings['Export label'])
+
+    # Write in the file association (.csv)
+    map_audio_selection(os.path.join(export_settings['Export folder'], export_settings['Original project name'],
+                                     export_settings['Original project name'] + '_audio_seltab_map.csv'),
+                        os.path.join(export_settings['Audio export folder'], export_filename +'.flac'),
+                        os.path.join(export_settings['Annotation export folder'], export_filename +'.txt'))
 
 # -------------------
 # Benchmark functions
@@ -592,13 +659,13 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
         
         # Test if x is multi-channel
         nb_ch = x.ndim
-
+        
         # Go through each channel 
         for ch in range(nb_ch): 
             # From the selection table, get the subset of selections that correspond to this specific audio file and channel
             selection_table_af_df = selection_table_df[(selection_table_df['Begin Path']==unique_audiofiles[ind_af])
                                                        &(selection_table_df['Channel']==ch+1)]
-
+    
             # If the selection table dataframe is not empty
             if not selection_table_af_df.empty:
                 # For each selection
@@ -611,69 +678,84 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
                     # Check which clip chuncks this selection is associated with
                     sel_in_clip_begintime = np.floor(begin_time/export_settings['Audio duration (s)'])
                     sel_in_clip_endtime = np.floor(end_time/export_settings['Audio duration (s)'])
-
-                    # If both begin and end time are in a single clip chunck
+                    
+                    # If both begin and end time are in a single clip chunck, that is default and will always be done
                     if sel_in_clip_begintime == sel_in_clip_endtime:
-
+                        
                         # Get the timing of the export clip (s)
                         start_clip = sel_in_clip_begintime*export_settings['Audio duration (s)']
                         end_clip = start_clip + export_settings['Audio duration (s)']
+                        
+                        # Create the dictionnary that will have all of the variables for the exports
+                        save_sel_dict = {
+                            'Selection #': sel, # Selection number in the table
+                            'fs_original_print': fs_original_print, # Original sampling frequency
+                            'Channel': ch, # Channel
+                            'Start export clip': start_clip, # Timing of thebeginint of the export clip (s)
+                            'Bit depth': bit_depth, # Bit depth, in correcto format
+                            'Label key': label_key, # Key to the label column in the selection table
+                            'Begin Time (s)': begin_time, # Time to start the annotation
+                            'End Time (s)': end_time # Time to end the annotation
+                        }
+                   
+                        # Export everything
+                        exports(export_settings, selection_table_af_df, save_sel_dict)
+                
+    
+                    # When an annotation is at the limit between two export audio files, 
+                    # If there is sufficient amount on either/both sides, keep it if (export_settings['Split export selections'][0] is True)  
+                    elif export_settings['Split export selections'][0] is True:
+                        # Test if the duration before the split is sufficient
+                        if abs(sel_in_clip_endtime * export_settings['Audio duration (s)'] - begin_time)>= export_settings['Split export selections'][1]:
+                            # Get the timing of the export clip (s)
+                            start_clip = sel_in_clip_begintime*export_settings['Audio duration (s)']
+                            end_clip = start_clip + export_settings['Audio duration (s)']
+                   
+                            # Update the begin and end time of the split annotation
+                            begin_time = selection_table_af_df['File Offset (s)'].iloc[sel]
+                            end_time = end_clip
 
-                        # Get the export audio file name in the format
-                        # <Project>_<OriginalFileName>_<OriginalSamplingFrequency>_<OriginalChannel>.flac
-                        export_filename = (export_settings['Original project name'] + '_' + 
-                                            os.path.splitext(os.path.basename(selection_table_af_df['Begin Path'].iloc[sel]))[0] + '_' + 
-                                           str(fs_original_print) + '_' + 'ch' + "{:02d}".format(ch+1) + '_' + 
-                                           "{:04d}".format(int(np.floor(start_clip))) +'s')
+                            # Create the dictionnary that will have all of the variables for the exports
+                            save_sel_dict = {
+                                'Selection #': sel, # Selection number in the table
+                                'fs_original_print': fs_original_print, # Original sampling frequency
+                                'Channel': ch, # Channel
+                                'Start export clip': start_clip, # Timing of thebeginint of the export clip (s)
+                                'Bit depth': bit_depth, # Bit depth, in correcto format
+                                'Label key': label_key, # Key to the label column in the selection table
+                                'Begin Time (s)': begin_time, # Time to start the annotation
+                                'End Time (s)': end_time # Time to end the annotation
+                            }
 
-                        # Test if the export audio file already exists otherwise, create it
-                        if not os.path.exists(os.path.join(export_settings['Audio export folder'], export_filename+'.flac')):
+                            # Export everything
+                            exports(export_settings, selection_table_af_df, save_sel_dict)
+                        
+                        # Test if the duration after the split is sufficient
+                        elif abs(end_time - sel_in_clip_endtime * export_settings['Audio duration (s)'])>= export_settings['Split export selections'][1]:
+                            # Get the timing of the export clip (s)
+                            start_clip = sel_in_clip_endtime*export_settings['Audio duration (s)']
+                            end_clip = start_clip + export_settings['Audio duration (s)']
+                   
+                            # Update the begin and end time of the split annotation
+                            begin_time = start_clip
+                            end_time = (selection_table_af_df['File Offset (s)'].iloc[sel] + selection_table_af_df['End Time (s)'].iloc[sel] 
+                                        - selection_table_af_df['Begin Time (s)'].iloc[sel])
 
-                            # Load and resample the the audio
-                            x_clip, fs = librosa.load(unique_audiofiles[ind_af], offset=start_clip, 
-                                                      duration=export_settings['Audio duration (s)'], 
-                                                      sr=export_settings['fs (Hz)'], mono=False, res_type='soxr_vhq')
-                            # Keep the wanted channel
-                            if nb_ch> 1:
-                                x_clip = x_clip[ch,:]
+                            # Create the dictionnary that will have all of the variables for the exports
+                            save_sel_dict = {
+                                'Selection #': sel, # Selection number in the table
+                                'fs_original_print': fs_original_print, # Original sampling frequency
+                                'Channel': ch, # Channel
+                                'Start export clip': start_clip, # Timing of thebeginint of the export clip (s)
+                                'Bit depth': bit_depth, # Bit depth, in correcto format
+                                'Label key': label_key, # Key to the label column in the selection table
+                                'Begin Time (s)': begin_time, # Time to start the annotation
+                                'End Time (s)': end_time # Time to end the annotation
+                            }
 
-                            # Save clip
-                            sf.write(os.path.join(export_settings['Audio export folder'], export_filename +'.flac'),
-                                     x_clip, fs, bit_depth) #.astype(np.int24)
-                            
-                            #print('Saved: ' + export_filename +'.flac')
-
-
-                        # Create/fill the selection table for this clip with the format 
-                        #['Selection', 'View', 'Channel', 'Begin Time (s)', 'End Time (s)', 'Low Freq (Hz)', 
-                        # 'High Freq (Hz)', 'Begin File', 'Original Begin Time (s)', 'Tag']
-                        selection = [0, # Placeholder, changes when adding the entry to the file writing the file
-                                    'Spectrogram', # All selections are on the Spectrogram
-                                    1, # We create monochannel audio so all is on channel 1
-                                    begin_time - start_clip,
-                                    end_time - start_clip,
-                                    selection_table_af_df['Low Freq (Hz)'].iloc[sel],
-                                    selection_table_af_df['High Freq (Hz)'].iloc[sel],
-                                    export_filename +'.flac',
-                                    selection_table_af_df['File Offset (s)'].iloc[sel],
-                                    selection_table_af_df[label_key].iloc[sel]]
-
-                        # Write in the selection table (.txt)
-                        write_selection_table(os.path.join(export_settings['Annotation export folder'], export_filename +'.txt'), 
-                                              selection, export_label=export_settings['Export label'])
-
-                        # Write in the golbal csv file (.csv)
-                        write_annotation_csv(os.path.join(export_settings['Export folder'], 
-                                                          export_settings['Original project name'],  
-                                                          export_settings['Original project name'] + '_annotations.csv'), 
-                                             selection, export_label=export_settings['Export label'])
-
-                        # Write in the file association (.csv)
-                        map_audio_selection(os.path.join(export_settings['Export folder'], export_settings['Original project name'],
-                                                         export_settings['Original project name'] + '_audio_seltab_map.csv'),
-                                            os.path.join(export_settings['Audio export folder'], export_filename +'.flac'),
-                                            os.path.join(export_settings['Annotation export folder'], export_filename +'.txt'))
-
+                            # Export everything
+                            exports(export_settings, selection_table_af_df, save_sel_dict)
+                        
                     else:
                         # If the selection is not comparised in the export clip, then do not save it, and print
                         printselnb = selection_table_af_df['Selection'].iloc[sel]
