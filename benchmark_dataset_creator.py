@@ -8,7 +8,7 @@ import sys
 import shutil
 
 import numpy as np
-from scipy import signal
+#from scipy import signal
 import pandas as pd
 import librosa
 import soundfile as sf
@@ -22,7 +22,8 @@ def query_yes_no(question, default="yes"):
 
     Inputs:
         - question: A string that is presented to the user.
-        - default: The presumed answer if the user just hits <Enter>. It must be "yes" (the default), "no", or None (meaning an answer is required from the user).
+        - default: The presumed answer if the user just hits <Enter>. It must be "yes" (the default), 
+        "no", or None (meaning an answer is required from the user).
 
     Return value:
         - True for "yes" or False for "no".
@@ -58,11 +59,9 @@ def query_yes_no(question, default="yes"):
 
 
 def path_print(startpath):
-    
     """
     Prints the content of the folder designated by startpath
     """
-   
     # Iterate through the directory tree starting from 'startpath'
     for root, dirs, files in os.walk(startpath):
         
@@ -93,7 +92,6 @@ def create_path(export_settings):
 
     Displays a warning if the folders already exist, which can be overwritten based on user input.
     """
-
     # Construct paths for audio and annotations folders based on export settings
     audio_path = os.path.join(export_settings['Export folder'], export_settings['Original project name'], 'audio')
     annot_path = os.path.join(export_settings['Export folder'], export_settings['Original project name'], 'annotations')
@@ -131,15 +129,70 @@ def create_path(export_settings):
             # Prompt the user to change the export folder path
             print(f"Please change the export folder path")
 
+            
+def check_export_settings(export_settings):
+    """
+    Checks the completeness of export settings provided by the user.
+
+    Inputs:
+        - export_settings: A dictionary that should contain the audio export settings:
+        'Original project name', 'Audio duration (s)', 'fs (Hz)', 'Bit depth', 'Export label', 
+        'Split export selections', and 'Export folder'.
+
+    Raises:
+        - ValueError: If any required field in the wanted_fields_list is missing in the export_settings 
+        dictionary.
+    """
+    wanted_fields_list = ['Original project name','Audio duration (s)',  'fs (Hz)', 'Bit depth', 'Export label', 'Split export selections',  'Export folder']
+    missing =[]
+    
+    # Go through the wanted fields
+    for wf in wanted_fields_list: 
+        
+        # Test if the wanted field is not in the export_settings dictionary, if true add it to the 'missing' list
+        if wf not in export_settings:
+            missing.append(wf)
+            
+    if missing:
+        raise ValueError(f"Error: Missing field in export_settings: {missing}")
+    else:
+        print(f"All required fields are filled")
+      
+    
+def check_selection_tab(selection_table_path):
+    """
+    Checks the validity of a selection table path.
+
+    Inputs:
+        - selection_table_path: A string representing the path to a selection table file or folder.
+
+    Raises:
+        - ValueError: If the selection_table_path is not a valid path to an existing folder or file.
+    """
+    # Test if selection_table_path is a file
+    if os.path.isfile(selection_table_path):
+        print(f"selection_table_path is a File")
+    
+    # Test if selection_table_path is a Folder and count number of txt files in that folder
+    elif os.path.isdir(selection_table_path):
+        filelist =  [file for file in os.listdir(selection_table_path) if file.endswith(".txt")]
+   
+        print(f"selection_table_path is a Folder with {len(filelist)} .txt Files")
+    
+    # Otherwise, raise an error for invalid selection_table_path
+    else: 
+        raise ValueError("Please provide a valid path to an existing folder or file.")
+
+        
 def get_bitdepth(export_settings):
     """
-    Get user-input bit depth.
-    
-    Input:
-        - export_settings: Dictionary containing export settings.
-    
-    Output:
-        - bit_depth: bit depth
+    Get the bit depth based on user-input export settings. Only FLAC files are supported.
+
+    Inputs:
+        - export_settings: Dictionary containing export settings, including parameters such as 'Bit depth'.
+
+    Outputs:
+        - bit_depth: The corresponding bit depth for the export settings.
     """
     authorized_user_bit_depth = [8, 16, 24]
     sf_flac_bit_depth = ['PCM_S8', 'PCM_16', 'PCM_24'] # This is only valid for flac files. 
@@ -157,7 +210,6 @@ def get_print_fs(fs_original):
         
     Output:
         - fs_original_print: fs to print
-    
     """
     if fs_original >= 1000:
         fs_original_print = str(int(np.floor(fs_original/1000)))+'kHz'
@@ -186,8 +238,9 @@ def check_bitdepth(export_settings):
     
     # Test if the specified bit depth is supported
     if export_settings['Bit depth'] not in authorized_user_bit_depth:
-        # Print an error message if the specified bit depth is not supported
-        print(f"Error: Non-supported Bit depth, please select on of the following values:\n ...{authorized_user_bit_depth}")
+        
+        # Raise error message if the specified bit depth is not supported
+        raise ValueError(f"Error: Non-supported Bit depth, please select on of the following values:\n ...{authorized_user_bit_depth}")
             
             
 def check_selection_table(df, label_key):
@@ -210,15 +263,13 @@ def check_selection_table(df, label_key):
     for item in wanted_fields:
         if item not in df.columns:
             missing.append(item)
-
-    # Inform the user about the presence of all required fields
-    if not missing:
-        print('All required fields are in the selection table')
+    
+     # Raise an error if any required fields are missing
+    if missing:
+        raise ValueError(f'Error: The following field(s) is missing from the selection table: {", ".join(missing)}')
     else:
-        # Inform the user about missing fields in the selection table
-        print(f'Error: The following field(s) is missing from the selection table:', end='\n--> ') 
-        for field in missing:
-            print(field)
+        print('All required fields are in the selection table')
+        
             
 def check_selection_table_folder(df):
     """
@@ -247,25 +298,47 @@ def check_selection_table_folder(df):
 # ----------------------------------------------
 # Manipulate existing selection tables functions
 
-def load_selection_table(filename_selection_table):
+
+def load_selection_table(selection_table_path):
+    """
+    Load one or multiple selection table(s) from a file or folder. It takes tab-separated Raven Pro 1.6 
+    selection tables (.txt).
+
+    Inputs:
+        - selection_table_path: A string representing the path to a selection table file or folder.
+
+    Returns:
+        - selection_table_df: A Panda DataFrame containing the loaded selection table.
+
+    This function loads the selection table from the provided selection_table_path, which can be either a 
+    file or a folder containing multiple selection table files. If selection_table_path points to a file, 
+    the function reads the file using pandas.read_csv(). If selection_table_path points to a folder, the 
+    function iterates through all '.csv' files in the folder, reads each file, and concatenates the data 
+    into a single DataFrame.
+
+    The function also checks if all necessary fields are present in the selection table(s) and raises a 
+    ValueError if any field is missing. If all required fields are present, it prints a message confirming 
+    their presence.
+
+    """
     
-    # If filename_selection_table is a file
-    if os.path.isfile(filename_selection_table):
-        selection_table_df = pd.read_csv(filename_selection_table, sep='\t')
+    # If selection_table_path is a file
+    if os.path.isfile(selection_table_path):
+        selection_table_df = pd.read_csv(selection_table_path, sep='\t')
         
         # Check if all necessary fields are present
         check_selection_table(selection_table_df, label_key)
         
-    # If filename_selection_table is a folder
-    elif os.path.isdir(filename_selection_table):
+    # If selection_table_path is a folder
+    elif os.path.isdir(selection_table_path):
         # Get the list of files
-        seltab_list = os.listdir(filename_selection_table)
+        seltab_list = os.listdir(selection_table_path)
 
         # Create empty list for missing fields
         missing = {}
         for ff in seltab_list:
             # Open selection table
-            selection_table_df_temp = pd.read_csv(os.path.join(filename_selection_table,ff), sep='\t')
+            selection_table_df_temp = pd.read_csv(os.path.join(selection_table_path,ff), sep='\t')
 
             # Check that all the files have the same fields
             missing_file = check_selection_table_folder(selection_table_df_temp)
@@ -287,16 +360,19 @@ def load_selection_table(filename_selection_table):
             print('All required fields are in the selection tables')
 
         else:
-            # Inform the user about missing fields in the selection table
-            print(f'Error: The following field(s) is missing from the selection table:', end='\n ') 
+            
+            # Raise an error indicating missing fields in the selection tables
+            error_msg = 'Error: The following field(s) is missing from the selection table:\n'
             for keys, value in missing.items():
-                print(f'--> in {keys}, the field(s) {value} are missing')
-
+                error_msg += f'--> in {keys}, the field(s) {value} are missing\n'
+            raise ValueError(error_msg)
+            
             # Empty the dataframe
             selection_table_df = pd.DataFrame({'A' : []})
 
     else: 
-        print(f"Please edit filename_selection_table to an existing path + folder or file name")
+         # Raise an error for invalid selection_table_path
+        raise ValueError("Please provide a valid path to an existing folder or file.")
 
     return selection_table_df
 
@@ -491,8 +567,22 @@ def map_audio_selection(filename, audio_filename, selection_filename):
 
 def exports(export_settings, selection_table_af_df, save_sel_dict):
     """
-    This function create all exports.
-    
+    Create all exports based on provided export settings, selection table DataFrame, and save selection dictionary.
+
+    Inputs:
+        - export_settings: Dictionary containing export settings.
+        - selection_table_af_df: Selection table imported as a Panda DataFrame.
+        - save_sel_dict: Dictionary containing information about the clip to be saved with the following keys:
+         'Selection #', 'fs_original_print', 'Channel', 'Start export clip', 'Bit depth', 'Label key', 'Begin Time (s)', 
+         'End Time (s)'
+          This variable is created in benchmark_creator
+
+    This function creates all exports based on the provided export settings, selection table DataFrame, and save selection 
+    dictionary. It generates filenames for exported audio files, exports audio clips, writes entries in the selection table 
+    file, writes annotations in a global CSV file, and creates a file association CSV.
+
+    Note: This function assumes the presence of several helper functions such as 'save_audioclip', 'write_selection_table',
+    'write_annotation_csv', and 'map_audio_selection'.
     """
     # Get the export audio file name in the format
     # <Project>_<OriginalFileName>_<OriginalSamplingFrequency>_<OriginalChannel>.flac
@@ -548,6 +638,10 @@ def benchmark_size_estimator(selection_table_df, export_settings, label_key):
 
     Returns:
         - Estimated benchmark size.
+
+    This function estimates the benchmark size based on the provided selection table and export settings. It performs the following steps:
+
+    Note: This function relies on helper functions such as 'get_number_clips' and 'check_bitdepth' for certain calculations.
     """
     
     # 1) Run tests on the selection table
@@ -640,6 +734,23 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
 
     Outputs:
         - Created benchmark.
+
+    This function creates a benchmark based on the provided selection table and export settings. It performs the following steps:
+
+    1) Lists unique audio files in the selection table.
+    2) Retrieves the bit depth from the export settings.
+    3) Iterates through each audio file and channel:
+        a) Loads a second of the audio file to retrieve metadata.
+        b) Determines the original sampling frequency for file naming.
+        c) Checks if the audio data is multi-channel.
+        d) Filters selections corresponding to the current audio file and channel.
+        e) For each selection:
+            i) Identifies the clip chunk associated with the selection.
+            ii) Creates a dictionary with variables for the export.
+            iii) Calls the 'exports' function to export audio and annotation files.
+            iv) Handles split annotations if required by export settings.
+
+    Note: This function relies on helper functions such as 'get_bitdepth', 'get_print_fs', and 'exports' for certain calculations and export operations.
     """
     
     # List unique audio files in the selection table

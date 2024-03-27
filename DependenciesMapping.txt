@@ -1,0 +1,35 @@
+Dependencies map:
+
+CreateBenchmarkDataset notebook:
+- check_export_settings
+- check_selection_tab
+- create_path
+- load_selection_table
+- benchmark_size_estimator
+- update_labels
+- benchmark_creator
+
+benchmark_creator function: 
+- get_bitdepth(export_settings): This function is called to retrieve the bit depth from the export settings.
+- get_print_fs(fs_original): This function is called to format the original sampling frequency for file naming.
+- exports(export_settings, selection_table_af_df, save_sel_dict): This function is called to export audio and annotation files.
+
+benchmark_size_estimator function: 
+- get_number_clips(unique_audiofiles, export_settings['Audio duration (s)']): This function is called to determine the number of clips based on the duration of audio files and export settings.
+- check_bitdepth(export_settings): This function is called to validate the bit depth specified in the export settings.
+
+exports function: 
+- save_audioclip: This function is called to export the audio clip based on provided parameters.
+- write_selection_table: This function is called to write entries in the selection table file.
+- write_annotation_csv: This function is called to write annotations in a global CSV file.
+- map_audio_selection: This function is called to create a file association CSV.
+
+
+
+
+Modules Imported:
+librosa: Used for loading audio files.
+os.path: Used for manipulating file paths.
+numpy as np: Used for numerical operations.
+soundfile as sf: Used for writing audio files.
+pandas: Utilized for working with DataFrames.
