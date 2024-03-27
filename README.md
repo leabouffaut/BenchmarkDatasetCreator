@@ -64,8 +64,7 @@ Please refer to the [User-defined parameters](#User-defined-parameters) section 
 > * a recap annotation CSV file that will match previous datasets, e.g., https://zenodo.org/records/7525805
 
 ## User-defined parameters <a id='User-defined-parameters'></a>
-```
-# User-defined export settings dictionary 
+```ruby
 export_settings = {
     'Original project name': '2021_CLOCCB_BermudaPlantBank_S1105', 
     'Audio duration (s)': 300,  
