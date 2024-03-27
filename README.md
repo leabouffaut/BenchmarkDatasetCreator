@@ -3,7 +3,7 @@ Léa Bouffaut, Ph.D. -- K. Lisa Yang Center for Conservation Bioacoustics, Corne
 
 lea.bouffaut@cornell.edu
 
-Motivations and objectives
+### Motivations and objectives
 
 Many bioacoustic projects are sitting on a goldmine of already annotated datasets. We want to create a standardized pipeline for creating, storing, sharing and
 using data that is flexible and repeatable  to train and test AI models for different applications. More details in https://www.overleaf.com/read/yfcgvngmwfbs#e349e7
@@ -40,7 +40,7 @@ Selection tables, by default, contain the necessary information to draw a time-f
 
 We will consider and test that all selection tables should contain all of the aforementioned fields, with a user-defined field for the label column. Note that 'Begin Path' should work from your current workstation (Unix and Windows mount servers and write paths differently)!
 
-Labels 
+### Labels 
 The following format is our suggested label format: 
 
 `<LatinNameAccronym>.<Location>.<CallName>`
@@ -54,7 +54,7 @@ Where
 * `<CallName>` free-format vocalization descriptor.
 
 
-Outputs
+### Outputs
 Please refer to the [User-defined parameters](#User-defined-parameters) section to see the details on the output folder architecture. 
 
 <div class="alert alert-block alert-info">
