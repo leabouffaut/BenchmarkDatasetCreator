@@ -55,15 +55,15 @@ Where
 
 
 ### Outputs
-Please refer to the [User-defined parameters](#User-defined-parameters) section to see the details on the output folder architecture. 
+Please refer to the User-defined-parameters section to see the details on the output folder architecture. 
 
 <div class="alert alert-block alert-info">
-<b>This notebook will assit you in creating:</b> 
+<b>This notebook will assist you in creating:</b> 
 <ul>
-  <li>Benchmark soundfiles based on user-input specifications</li>
+  <li>Benchmark sound files based on user-input specifications</li>
   <li>a corresponding Raven selection table for each sound file, </li>
-  <li>a two-colum file-matching csv (as used for Koogu) and,</li>
-  <li>a recap annotation CSV file that will match previous datasets e.g, https://zenodo.org/records/7525805</li>
+  <li>a two-column file-matching CSV (as used for Koogu) and,</li>
+  <li>a recap annotation CSV file that will match previous datasets, e.g., https://zenodo.org/records/7525805</li>
 </ul>
 </div>
 
