@@ -56,14 +56,10 @@ Where
 
 ### Outputs
 Please refer to the User-defined-parameters section to see the details on the output folder architecture. 
-
-<div class="alert alert-block alert-info">
-<b>This notebook will assist you in creating:</b> 
-<ul>
-  <li>Benchmark sound files based on user-input specifications</li>
-  <li>a corresponding Raven selection table for each sound file, </li>
-  <li>a two-column file-matching CSV (as used for Koogu) and,</li>
-  <li>a recap annotation CSV file that will match previous datasets, e.g., https://zenodo.org/records/7525805</li>
-</ul>
-</div>
+> [!NOTE]
+>This notebook will assist you in creating:
+> Benchmark sound files based on user-input specifications
+>   a corresponding Raven selection table for each sound file,
+>   a two-column file-matching CSV (as used for Koogu) and,
+>   a recap annotation CSV file that will match previous datasets, e.g., https://zenodo.org/records/7525805
 
