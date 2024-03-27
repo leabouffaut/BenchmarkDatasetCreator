@@ -19,9 +19,10 @@ This notebook aims to create a benchmark dataset and standardize the following:
 It also gives the option to change labels, e.g., to match our standardized label format.
 
 
-<b>It does NOT:</b>
-* Filter the audio input beyond what is needed for resampling
-* Normalize the audio file amplitude
+> [!CAUTION]
+> <b>It does NOT:</b>
+> * Filter the audio input beyond what is needed for resampling
+> * Normalize the audio file amplitude
 
 
 For example, this schematic view presents (top) a Raven Pro project with a selection table associated with several audio files of different lengths, (bottom) the standardized benchmark clips, and associated annotations. Note that annotations at the junction between two export files and those in the remaining audio, which are too short in comparison with the selected export audio file duration, are ignored.
