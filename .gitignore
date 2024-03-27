@@ -155,6 +155,9 @@ cython_debug/
 # macOS system file
 *.DS_Store
 
+# Keynote docs
+*.key
+
 
 # Python requirements file
 requirements.txt
