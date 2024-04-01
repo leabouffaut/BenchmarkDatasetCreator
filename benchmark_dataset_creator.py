@@ -687,7 +687,6 @@ def benchmark_size_estimator(selection_table_df, export_settings, label_key):
 
             # If the selection table dataframe is not empty
             if not selection_table_af_df.empty:
-
                 # For each selection
                 for sel in range(len(selection_table_af_df)):
                     # Get begin and end time of the selection
