@@ -249,7 +249,7 @@ def check_bitdepth(export_settings):
             f"Error: Non-supported Bit depth, please select on of the following values:\n ...{authorized_user_bit_depth}")
 
 
-def check_selection_table(df, label_key):
+def check_selection_table(df):
     """
     This function checks whether all of the required fields are present in the selection table.
 
@@ -263,7 +263,7 @@ def check_selection_table(df, label_key):
 
     # List of all desired fields in the selection table
     wanted_fields = ['Begin Time (s)', 'End Time (s)', 'Low Freq (Hz)', 'High Freq (Hz)', 'File Offset (s)',
-                     'Begin Path', label_key]
+                     'Begin Path']
 
     # Check if each desired field is present in the selection table, and if not, add it to the 'missing' list
     missing = []
@@ -335,7 +335,7 @@ def load_selection_table(selection_table_path):
         selection_table_df = pd.read_csv(selection_table_path, sep='\t')
 
         # Check if all necessary fields are present
-        check_selection_table(selection_table_df, label_key)
+        check_selection_table(selection_table_df)
 
     # If selection_table_path is a folder
     elif os.path.isdir(selection_table_path):
@@ -889,7 +889,6 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
                         # If the selection is not comparised in the export clip, then do not save it, and print
                         printselnb = selection_table_af_df['Selection'].iloc[sel]
                         head, tail = os.path.split(selection_table_af_df['Begin Path'].iloc[sel])
-                        print(
-                            f'Ignored annotation...  Selection # {printselnb}, File {tail}, Channel {ch + 1}, {begin_time}-{end_time} s')
+                        print(f'Ignored annotation...  Selection # {printselnb}, File {tail}, Channel {ch + 1}, {begin_time}-{end_time} s')
 
 

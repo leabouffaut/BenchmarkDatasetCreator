@@ -1,7 +1,6 @@
 # Import convention
 import streamlit as st
 import benchmark_dataset_creator as bc
-import pandas as pd
 import os
 import shutil
 
@@ -32,6 +31,11 @@ if 'stage' not in st.session_state:
 def set_state(i):
     st.session_state.stage = i
 
+label_key=[]
+export_settings={}
+
+#TODO: have all of the text in a language-specific file
+#TODO: Metadata fill - maybe a different page?ç
 
 # --------------------------------
 st.title('Benchmark Dataset Creator')
@@ -54,7 +58,7 @@ export_settings_user_input = \
                                                value="e.g., 2013_UnivMD_Maryland_71485_MD02",
                                                type="default",
                                                help="This entry will be used to  keep track of the origin of "
-                                                    "the data, as a part of the foler architecture and file naming."
+                                                    "the data, as a part of the folder architecture and file naming."
                                                     "please do not end this entry by / or \ and avoid spaces",
                                                label_visibility="visible"),
 
@@ -96,7 +100,7 @@ export_settings_user_input = \
                                                   "[Other] This parameter can be handy if, for example, you "
                                                   "selected long periods of background noise (long compared to the "
                                                   "annotations of signals of interest) that could be split across two audio "
-                                                  "export files. In that case, you can set the minimun duration to something"
+                                                  "export files. In that case, you can set the minimum duration to something"
                                                   " longer than your signals of interest or to 3 s if you plan to work with "
                                                   "BirdNET. Another use case is if you have a very tight selection around "
                                                   "your signal of interest (in time) and want even a very small portion of "
@@ -104,7 +108,7 @@ export_settings_user_input = \
                                              label_visibility="visible")}
 
 
-# User-chosen split output
+# User-chosen split output #TODO: test this
 if export_settings_user_input['Split export selections']:
     export_settings_user_input['Split export selections'] = [export_settings_user_input['Split export selections'],
                                                              st.sidebar.text_input('Minimum duration (s)',
@@ -122,6 +126,7 @@ export_settings_user_input['Export folder'] = st.sidebar.text_input('Export fold
                                                             type="default",
                                                             help="Export folder is where the data will be saved.",
                                                             label_visibility="visible")
+
 st.subheader('Create directories')
 if st.session_state.stage == 0:
     # Create a button-controlled creation of the export folder (So that not everything runs)
@@ -203,11 +208,11 @@ if st.session_state.stage >= 2:
     st.subheader('Load selections')
     # # User-defined path to selection table(s)
     selection_table_path = st.text_input('Path to a selection table or selection table folder',
-                                         value="SelectionTable/MD03_truth_selections.txt",
+                                         value="SelectionTable/MD02_truth_selections.txt",
                                          type="default",
                                          help="(1) a complete path to a <b>selection table</b> if dealing with a single "
                                                   "audio file in total or a project with multiple audio files, e.g. "
-                                                  "`'SelectionTable/MD03_truth_selections.txt'`"
+                                                  "`'SelectionTable/MD02_truth_selections.txt'`"
                                                   "(2) a path to a <b>folder</b> if dealing with one selection table associated"
                                                   " with a single audio file, e.g., `'SelectionTables/'`",
                                          label_visibility="visible")
@@ -245,13 +250,13 @@ if st.session_state.stage >= 3:
 
     # 9) Estimate the size of the dataset and show output
     st.subheader('Estimate Benchmark Dataset size')
-    with st.spinner("Creating the Benchmark dataset..."):
+    with st.spinner("Estimating the size of the Benchmark dataset..."):
         output = st.empty()
         with st_capture(output.code):
             bc.benchmark_size_estimator(selection_table_df, export_settings, label_key)
 
     # 10) Check & update labels
-    st.subheader('Edit labels')
+    st.subheader('Edit labels (Optional)')
     # Get a list of unique labels from the selection table
     unique_labels = selection_table_df[label_key].unique()
 
@@ -259,22 +264,34 @@ if st.session_state.stage >= 3:
     remap_label_df = pd.DataFrame({'Original labels': unique_labels,
                                    'New labels': unique_labels})
     # Show dataframe
-    new_labels_dict = st.data_editor(remap_label_df, num_rows="fixed",
-                                     disabled=["Original labels"],)
-                                                    # ToDo: add help for label mamagement (right)
-                                                     # ToDO: block column on the left
+    col5, col6 = st.columns([1, 1.5])
+    new_labels_df = col5.data_editor(remap_label_df, num_rows="fixed",
+                                     disabled=["Original labels"], hide_index=True)
+    col6.write('💡 To update existing labels, edit the `New labels` column.')
+    col6.image('illustrations/‎method_schematicV2_zoom.png', caption=None, width=None, use_column_width=True, clamp=False,
+             channels="RGB", output_format="auto")
 
     # Show button for creating Benchmark dataset
-    st.button('Create Benchmark Dataset', help=None, on_click=set_state, args=[4])
+    col6.button('Save', help=None, on_click=set_state, args=[4])
 
 if st.session_state.stage >= 4:
+    # Show button for creating Benchmark dataset
+    st.button('Create Benchmark Dataset', help=None, on_click=set_state, args=[5])
 
-    # 11) Swap the labels #TODO
-    #selection_table_df = bc.update_labels(selection_table_df, new_labels_dict, label_key)
+if st.session_state.stage >= 5:
+
+    # 11) Swap the labels
+    # We want labels in a dictionary format with Key (old label): Value (new label)
+    # col5.subheader('Updated labels')
+    # col5.dataframe(new_labels_df, hide_index=True)
+    new_labels_dict = new_labels_df.set_index('Original labels')['New labels'].to_dict()
+
+    # Update the selection table
+    selection_table_df_updated = bc.update_labels(selection_table_df, new_labels_dict, label_key)
 
     # 12) Create the dataset
     with st.spinner("Creating the Benchmark dataset..."):
-        bc.benchmark_creator(selection_table_df, export_settings, label_key) #TODO: show something that indicates it's running
+        bc.benchmark_creator(selection_table_df_updated, export_settings, label_key)
 
     st.success('Benchmark dataset successfully created!')
             ## New label dictionary
