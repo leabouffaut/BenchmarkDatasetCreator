@@ -35,7 +35,11 @@ label_key=[]
 export_settings={}
 
 #TODO: have all of the text in a language-specific file
-#TODO: Metadata fill - maybe a different page?ç
+#TODO: Metadata fill - maybe a different page?
+#TODO: add link to a Yang Center species/label csv?
+    #url = "https://www.streamlit.io"
+    #st.write("check out this [link](%s)" % url)
+    #st.markdown("check out this [link](%s)" % url)
 
 # --------------------------------
 st.title('Benchmark Dataset Creator')
