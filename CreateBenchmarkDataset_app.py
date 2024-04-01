@@ -36,8 +36,12 @@ def set_state(i):
 # --------------------------------
 st.title('Benchmark Dataset Creator')
 
+# Add image
+st.image('illustrations/‎method_schematicV2.png', caption=None, width=None, use_column_width=True, clamp=False,
+         channels="RGB", output_format="auto")
+
 # User-defined export settings dictionary
-st.subheader('Export settings selection')
+st.sidebar.subheader('Export settings selection')
 
 # Needed variables
 authorized_user_fs = ['1 kHz', '2 kHz', '8 kHz', '16 kHz', '32 kHz', '48 kHz',
@@ -46,7 +50,7 @@ authorized_user_bit_depth = ['8 Bits', '16 Bits', '24 bits']
 
 export_settings_user_input = \
     {
-        'Original project name': st.text_input('Original project name',
+        'Original project name': st.sidebar.text_input('Original project name',
                                                value="e.g., 2013_UnivMD_Maryland_71485_MD02",
                                                type="default",
                                                help="This entry will be used to  keep track of the origin of "
@@ -54,7 +58,7 @@ export_settings_user_input = \
                                                     "please do not end this entry by / or \ and avoid spaces",
                                                label_visibility="visible"),
 
-        'Audio duration (s)': st.slider('Audio duration (min)',
+        'Audio duration (s)': st.sidebar.slider('Audio duration (min)',
                                         min_value=1, max_value=60, value=10, step=1, format='%i',
                                         help="Set  the chosen export audio file duration for the Benchmark "
                                              "dataset in minutes. Our recommendation is to set it to encompass the "
@@ -63,27 +67,27 @@ export_settings_user_input = \
                                              "call/cue rate (with several annotations)?",
                                         label_visibility="visible") * 60,
 
-        'fs (Hz)': st.selectbox('Sampling Frequency', authorized_user_fs,
+        'fs (Hz)': st.sidebar.selectbox('Sampling Frequency', authorized_user_fs,
                                 index=5,
                                 help='The sampling frequency is to be set at minima at double the maximum frequency of'
                                      ' the signals of interest. If relevant, BirdNET uses fs = 48 kHz ',
                                 label_visibility="visible"),
 
-        'Bit depth': st.selectbox('Bit depth', authorized_user_bit_depth,
+        'Bit depth': st.sidebar.selectbox('Bit depth', authorized_user_bit_depth,
                                   index=2,
                                   help='The bit depth determines the number of possible amplitude values we can record '
                                        'for each audio sample; for SWIFT units, it is set to 16 bits and for Rockhopper '
                                        'to 24 bits.',
                                   label_visibility="visible"),
 
-        'Export label': st.text_input('Export label',
+        'Export label': st.sidebar.text_input('Export label',
                                       value="Tags",
                                       type="default",
                                       help="Defines the name of the label column for the created export Raven selection "
                                            "tables",
                                       label_visibility="visible"),
 
-        'Split export selections': st.toggle('Split export selections',
+        'Split export selections': st.sidebar.toggle('Split export selections',
                                              value=False,
                                              help="Split export selection specifies the method when a selection is at the "
                                                   "junction between two export audio files."
@@ -103,7 +107,7 @@ export_settings_user_input = \
 # User-chosen split output
 if export_settings_user_input['Split export selections']:
     export_settings_user_input['Split export selections'] = [export_settings_user_input['Split export selections'],
-                                                             st.text_input('Minimum duration (s)',
+                                                             st.sidebar.text_input('Minimum duration (s)',
                                                                            value="1",
                                                                            type="default",
                                                                            help="Specify the minimum duration to report an "
@@ -113,15 +117,15 @@ if export_settings_user_input['Split export selections']:
 else:
     export_settings_user_input['Split export selections'] = [export_settings_user_input['Split export selections'], 0]
 
-export_settings_user_input['Export folder'] = st.text_input('Export folder',
+export_settings_user_input['Export folder'] = st.sidebar.text_input('Export folder',
                                                             value="e.g., benchmark_data",
                                                             type="default",
                                                             help="Export folder is where the data will be saved.",
                                                             label_visibility="visible")
-
+st.subheader('Create directories')
 if st.session_state.stage == 0:
     # Create a button-controlled creation of the export folder (So that not everything runs)
-    st.button('Create Export folders', help=None, on_click=set_state, args=[1])
+    st.sidebar.button('Create Export folders', help=None, on_click=set_state, args=[1])
 
 if st.session_state.stage >= 1:
     # 1) continued, Entries in the correct format
@@ -168,8 +172,9 @@ if st.session_state.stage >= 1:
         with st_capture(output.code):
             bc.path_print(os.path.join(export_settings['Export folder'], export_settings['Original project name']))
 
+        col1, col2 = st.columns([1, 1])
         # Ask the user whether to delete existing data
-        if st.button('Delete data', help=None, on_click=set_state, args=[2]):
+        if col1.button('Delete data', help=None, on_click=set_state, args=[2]):
             # Delete existing audio and annotations folders
             shutil.rmtree(audio_path)
             shutil.rmtree(annot_path)
@@ -183,7 +188,7 @@ if st.session_state.stage >= 1:
             st.success('Data deleted')
 
 
-        if st.button('Abort', help=None, on_click=set_state, args=[1]):
+        if col2.button('Abort', help=None, on_click=set_state, args=[1]):
             # Prompt the user to change the export folder path
             output = st.empty()
             with st_capture(output.code):
@@ -218,14 +223,14 @@ if st.session_state.stage >= 2:
         bc.check_selection_tab(selection_table_path)
 
     # 6) Show selection table
-    col1, col2 = st.columns([3, 1])
-    col1.subheader('Uploaded Selection table')
+    col3, col4 = st.columns([3, 1])
+    col3.subheader('Uploaded Selection table')
     if not selection_table_df.empty:
-        col1.dataframe(selection_table_df)
+        col3.dataframe(selection_table_df)
 
     # 7) Ask for user-defined label key, should be in the Selection table keys displayed above
-    col2.subheader('Label')
-    label_key = col2.text_input('Selection table label',
+    col4.subheader('Label')
+    label_key = col4.text_input('Selection table label',
                               value="e.g., Tags",
                               type="default",
                               help="User-defined label key, should be in the displayed Selection table",
@@ -239,8 +244,7 @@ if st.session_state.stage >= 3:
     selection_table_df.drop_duplicates(subset='Begin Time (s)', keep="last")
 
     # 9) Estimate the size of the dataset and show output
-
-    st.subheader('Estimate Benchmark Dataset size') #TODO: show something that indicates it's running
+    st.subheader('Estimate Benchmark Dataset size')
     with st.spinner("Creating the Benchmark dataset..."):
         output = st.empty()
         with st_capture(output.code):
@@ -255,7 +259,10 @@ if st.session_state.stage >= 3:
     remap_label_df = pd.DataFrame({'Original labels': unique_labels,
                                    'New labels': unique_labels})
     # Show dataframe
-    new_labels_dict = st.data_editor(remap_label_df)
+    new_labels_dict = st.data_editor(remap_label_df, num_rows="fixed",
+                                     disabled=["Original labels"],)
+                                                    # ToDo: add help for label mamagement (right)
+                                                     # ToDO: block column on the left
 
     # Show button for creating Benchmark dataset
     st.button('Create Benchmark Dataset', help=None, on_click=set_state, args=[4])
