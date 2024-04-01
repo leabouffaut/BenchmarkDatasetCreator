@@ -9,7 +9,7 @@ from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 import pandas as pd
 
-
+# The function below is to help write the output
 @contextmanager
 def st_capture(output_func):
     with StringIO() as stdout, redirect_stdout(stdout):
@@ -22,60 +22,6 @@ def st_capture(output_func):
 
         stdout.write = new_write
         yield
-
-
-def create_path_app(export_settings):
-    """
-    Function to create export folders following this architecture:
-    Export folder/
-    |... Original project name/
-    |... |... audio/
-    |... |... annotations/
-
-    Displays a warning if the folders already exist, which can be overwritten based on user input.
-    """
-    # Construct paths for audio and annotations folders based on export settings
-    audio_path = os.path.join(export_settings['Export folder'], export_settings['Original project name'], 'audio')
-    annot_path = os.path.join(export_settings['Export folder'], export_settings['Original project name'], 'annotations')
-
-    # If the audio folder does not exist in path
-    if not os.path.exists(audio_path):
-        # Create the audio and annotations folders
-        os.makedirs(audio_path)
-        os.makedirs(annot_path)
-        # Update export settings with the paths
-        export_settings['Audio export folder'] = audio_path
-        export_settings['Annotation export folder'] = annot_path
-
-    # If the audio folder already exists
-    else:
-        # Display a warning message
-        st.write(f'Warning: This folder already exists, data may be deleted: \n')
-
-        output = st.empty()
-        with st_capture(output.code):
-            bc.path_print(os.path.join(export_settings['Export folder'], export_settings['Original project name']))
-
-        # Ask the user whether to delete existing data
-        if st.button('Delete data', help=None, on_click=None):
-            # Delete existing audio and annotations folders
-            shutil.rmtree(audio_path)
-            shutil.rmtree(annot_path)
-
-            # Recreate audio and annotations folders
-            os.makedirs(audio_path)
-            os.makedirs(annot_path)
-
-            # Update export settings with the new paths
-            export_settings['Audio export folder'] = audio_path
-            export_settings['Annotation export folder'] = annot_path
-
-        elif st.button('Abort', help=None, on_click=None):
-            # Prompt the user to change the export folder path
-            output = st.empty()
-            with st_capture(output.code):
-                raise ValueError("Please change the export folder path")
-
 
 
 st.title('Benchmark Dataset Creator')
@@ -142,7 +88,7 @@ export_settings_user_input = \
                                                   "your signal of interest (in time) and want even a very small portion of "
                                                   "that signal to be labeled.",
                                              label_visibility="visible")}
-
+# User-chosen split output
 if export_settings_user_input['Split export selections']:
     export_settings_user_input['Split export selections'] = [export_settings_user_input['Split export selections'],
                                                              st.text_input('Minimum duration (s)',
@@ -177,87 +123,137 @@ bit_depth_wanted = [8, 16, 24]
 export_settings['Bit depth'] = bit_depth_wanted[
     authorized_user_bit_depth.index(export_settings_user_input['Bit depth'])]
 
+# Create a button-controlled creation of the export folder (So that not everything runs)
 if st.button('Create Export folders', help=None, on_click=None):
     # Create directories and show output
-    create_path_app(export_settings)
+    status = False
 
-    # Run check on the user-defined entries and show output
-    output = st.empty()
-    with st_capture(output.code):
-        bc.check_export_settings(export_settings)
-
-    st.subheader('Load selections')
-    # # User-defined path to selection table(s)
-    selection_table_path = st.text_input('Path to a selection table or selection table folder',
-                                         value="SelectionTable/MD03_truth_selections.txt",
-                                         type="default",
-                                         help="(1) a complete path to a <b>selection table</b> if dealing with a single "
-                                              "audio file in total or a project with multiple audio files, e.g. "
-                                              "`'SelectionTable/MD03_truth_selections.txt'`"
-                                              "(2) a path to a <b>folder</b> if dealing with one selection table associated"
-                                              " with a single audio file, e.g., `'SelectionTables/'`",
-                                         label_visibility="visible")
-
-    # Load selection table and show output
-    output = st.empty()
-    with st_capture(output.code):
-        selection_table_df = bc.load_selection_table(selection_table_path)
-
-    # Show selection table
-    if not selection_table_df.empty:
-        st.dataframe(selection_table_df)
-
-    # Run bc.check_selection_tab and show output
-    output = st.empty()
-    with st_capture(output.code):
-        bc.check_selection_tab(selection_table_path)
-
-    # User-defined label key, should be in the Selection table keys displayed above
-    label_key = st.text_input('Export label',
-                              value="e.g., Tags",
-                              type="default",
-                              help="User-defined label key, should be in the Selection table keys displayed above",
-                              label_visibility="visible"),
-    label_key=label_key[0]
-
-    # Test selection table and estimate size
-    # Remove duplicates (e.g., if we have both the spectrogram and waveform view)
-    selection_table_df.drop_duplicates(subset='Begin Time (s)', keep="last")
-
-    st.subheader('Estimate Benchmark Dataset size')
-    # Estimate the size of the dataset and show output
-    output = st.empty()
-    with st_capture(output.code):
-        bc.benchmark_size_estimator(selection_table_df, export_settings, label_key)
-
-    # Check & update labels
-    # Get a list of unique labels from the selection table
-    unique_labels = selection_table_df[label_key].unique()
-
-    # Create a dataframe
-    remap_label_df = pd.DataFrame({'Original labels': unique_labels,
-                                  'New labels': unique_labels})
-    # Show dataframe
-    new_labels = st.data_editor(remap_label_df)
+    # Construct paths for audio and annotations folders based on export settings
+    audio_path = os.path.join(export_settings['Export folder'], export_settings['Original project name'], 'audio')
+    annot_path = os.path.join(export_settings['Export folder'], export_settings['Original project name'], 'annotations')
 
 
-    if st.button('Create Benchmark Dataset', help=None, on_click=None):
-        ## New label dictionary
-        #new_labels_dict = {}
-        #st.write(len(new_labels['Original labels']))
+    # If the audio folder does not exist in path
+    if not os.path.exists(audio_path):
+        # Create the audio and annotations folders
+        os.makedirs(audio_path)
+        os.makedirs(annot_path)
+        # Update export settings with the paths
+        export_settings['Audio export folder'] = audio_path
+        export_settings['Annotation export folder'] = annot_path
+        status = True
 
-        #for ii in range(int(len(new_labels['Original labels']))):
-        #    print(ii)
-        #    print(new_labels['Original labels'].iloc(ii))
-        #    print(new_labels['New labels'].iloc(ii))
+    # If the audio folder already exists
+    else:
+        status = False
+        # Display a warning message
+        st.write(f'Warning: This folder already exists, data may be deleted: \n')
 
-
-
-        # Swap the labels
-        #selection_table_df = bc.update_labels(selection_table_df, new_labels_dict, label_key)
-
-        # Create the dataset
         output = st.empty()
         with st_capture(output.code):
-            bc.benchmark_creator(selection_table_df, export_settings, label_key)
+            bc.path_print(os.path.join(export_settings['Export folder'], export_settings['Original project name']))
+
+        # Ask the user whether to delete existing data
+        if st.button('Delete data', help=None, on_click=None):
+            # Delete existing audio and annotations folders
+            shutil.rmtree(audio_path)
+            shutil.rmtree(annot_path)
+
+            # Recreate audio and annotations folders
+            os.makedirs(audio_path)
+            os.makedirs(annot_path)
+
+            # Update export settings with the new paths
+            export_settings['Audio export folder'] = audio_path
+            export_settings['Annotation export folder'] = annot_path
+            status = True
+
+        elif st.button('Abort', help=None, on_click=None):
+            # Prompt the user to change the export folder path
+            output = st.empty()
+            with st_capture(output.code):
+                raise ValueError("Please change the export folder path")
+            status = False
+
+    if status:
+
+        # Run check on the user-defined entries and show output
+        output = st.empty()
+        with st_capture(output.code):
+            bc.check_export_settings(export_settings)
+
+        st.subheader('Load selections')
+        # # User-defined path to selection table(s)
+        selection_table_path = st.text_input('Path to a selection table or selection table folder',
+                                             value="SelectionTable/MD03_truth_selections.txt",
+                                             type="default",
+                                             help="(1) a complete path to a <b>selection table</b> if dealing with a single "
+                                                  "audio file in total or a project with multiple audio files, e.g. "
+                                                  "`'SelectionTable/MD03_truth_selections.txt'`"
+                                                  "(2) a path to a <b>folder</b> if dealing with one selection table associated"
+                                                  " with a single audio file, e.g., `'SelectionTables/'`",
+                                             label_visibility="visible")
+
+        # Load selection table and show output
+        output = st.empty()
+        with st_capture(output.code):
+            selection_table_df = bc.load_selection_table(selection_table_path)
+
+        # Show selection table
+        if not selection_table_df.empty:
+            st.dataframe(selection_table_df)
+
+        # Run bc.check_selection_tab and show output
+        output = st.empty()
+        with st_capture(output.code):
+            bc.check_selection_tab(selection_table_path)
+
+        # User-defined label key, should be in the Selection table keys displayed above
+        label_key = st.text_input('Export label',
+                                  value="e.g., Tags",
+                                  type="default",
+                                  help="User-defined label key, should be in the Selection table keys displayed above",
+                                  label_visibility="visible"),
+        label_key=label_key[0]
+
+        # Test selection table and estimate size
+        # Remove duplicates (e.g., if we have both the spectrogram and waveform view)
+        selection_table_df.drop_duplicates(subset='Begin Time (s)', keep="last")
+
+        st.subheader('Estimate Benchmark Dataset size')
+        # Estimate the size of the dataset and show output
+        output = st.empty()
+        with st_capture(output.code):
+            bc.benchmark_size_estimator(selection_table_df, export_settings, label_key)
+
+        # Check & update labels
+        # Get a list of unique labels from the selection table
+        unique_labels = selection_table_df[label_key].unique()
+
+        # Create a dataframe
+        remap_label_df = pd.DataFrame({'Original labels': unique_labels,
+                                      'New labels': unique_labels})
+        # Show dataframe
+        new_labels = st.data_editor(remap_label_df)
+
+
+        if st.button('Create Benchmark Dataset', help=None, on_click=None):
+            ## New label dictionary
+            #new_labels_dict = {}
+            #st.write(len(new_labels['Original labels']))
+
+            #for ii in range(int(len(new_labels['Original labels']))):
+            #    print(ii)
+            #    print(new_labels['Original labels'].iloc(ii))
+            #    print(new_labels['New labels'].iloc(ii))
+
+
+
+            # Swap the labels
+            #selection_table_df = bc.update_labels(selection_table_df, new_labels_dict, label_key)
+
+            # Create the dataset
+            output = st.empty()
+            with st_capture(output.code):
+                bc.benchmark_creator(selection_table_df, export_settings, label_key)
 
