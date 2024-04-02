@@ -774,6 +774,9 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
     # Get the bit depth
     bit_depth = get_bitdepth(export_settings)
 
+    # Get total number of clips
+    tot_clips = 0
+
     # Go through each audio file
     for ind_af in tqdm(range(len(unique_audiofiles))):
 
@@ -826,7 +829,7 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
 
                         # Export everything
                         exports(export_settings, selection_table_af_df, save_sel_dict)
-
+                        tot_clips += 1
 
                     # When an annotation is at the limit between two export audio files, 
                     # If there is sufficient amount on either/both sides, keep it if (export_settings['Split export selections'][0] is True)  
@@ -856,7 +859,7 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
 
                             # Export everything
                             exports(export_settings, selection_table_af_df, save_sel_dict)
-
+                            tot_clips += 1
                         # Test if the duration after the split is sufficient
                         elif abs(end_time - sel_in_clip_endtime * export_settings['Audio duration (s)']) >= \
                                 export_settings['Split export selections'][1]:
@@ -884,7 +887,7 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
 
                             # Export everything
                             exports(export_settings, selection_table_af_df, save_sel_dict)
-
+                            tot_clips += 1
                     else:
                         # If the selection is not comparised in the export clip, then do not save it, and print
                         printselnb = selection_table_af_df['Selection'].iloc[sel]
@@ -892,3 +895,4 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
                         print(f'Ignored annotation...  Selection # {printselnb}, File {tail}, Channel {ch + 1}, {begin_time}-{end_time} s')
 
 
+    print(f'Total number of clips: {tot_clips}')

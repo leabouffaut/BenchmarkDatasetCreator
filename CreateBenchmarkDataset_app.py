@@ -38,6 +38,7 @@ export_settings={}
 # could be a solution
 #TODO: Metadata fill - maybe a different page?
 #TODO: add link to a Yang Center species/label csv?
+
     #url = "https://www.streamlit.io"
     #st.write("check out this [link](%s)" % url)
     #st.markdown("check out this [link](%s)" % url)
@@ -46,7 +47,7 @@ export_settings={}
 st.title('Benchmark Dataset Creator')
 
 # Add image
-st.image('illustrations/‎method_schematicV2.png', caption=None, width=None, use_column_width=True, clamp=False,
+st.image('docs/illustrations/‎method_schematicV2.png', caption=None, width=None, use_column_width=True, clamp=False,
          channels="RGB", output_format="auto")
 
 # User-defined export settings dictionary
@@ -116,9 +117,12 @@ export_settings_user_input = \
 # User-chosen split output #TODO: test this
 if export_settings_user_input['Split export selections']:
     export_settings_user_input['Split export selections'] = [export_settings_user_input['Split export selections'],
-                                                             st.sidebar.text_input('Minimum duration (s)',
-                                                                           value="1",
-                                                                           type="default",
+                                                             st.sidebar.number_input('Minimum duration (s)',
+                                                                           value=float(1.0),
+                                                                           min_value=float(0),
+                                                                           max_value=float(export_settings_user_input['Audio duration (s)']),
+                                                                           format='%.1f',
+                                                                           step=0.1,
                                                                            help="Specify the minimum duration to report an "
                                                                                 "annotation in the selection table in seconds",
                                                                            label_visibility="visible")
@@ -216,10 +220,10 @@ if st.session_state.stage >= 2:
                                          value="SelectionTable/MD02_truth_selections.txt",
                                          type="default",
                                          help="(1) a complete path to a <b>selection table</b> if dealing with a single "
-                                                  "audio file in total or a project with multiple audio files, e.g. "
-                                                  "`'SelectionTable/MD02_truth_selections.txt'`"
-                                                  "(2) a path to a <b>folder</b> if dealing with one selection table associated"
-                                                  " with a single audio file, e.g., `'SelectionTables/'`",
+                                              "audio file in total or a project with multiple audio files, e.g. "
+                                              "`'SelectionTable/MD02_truth_selections.txt'`"
+                                              "(2) a path to a <b>folder</b> if dealing with one selection table associated"
+                                              " with a single audio file, e.g., `'SelectionTables/'`",
                                          label_visibility="visible")
 
     # 4) Load selection table and show output
@@ -273,7 +277,7 @@ if st.session_state.stage >= 3:
     new_labels_df = col5.data_editor(remap_label_df, num_rows="fixed",
                                      disabled=["Original labels"], hide_index=True)
     col6.write('💡 To update existing labels, edit the `New labels` column.')
-    col6.image('illustrations/‎method_schematicV2_zoom.png', caption=None, width=None, use_column_width=True, clamp=False,
+    col6.image('docs/illustrations/‎method_schematicV2_zoom.png', caption=None, width=None, use_column_width=True, clamp=False,
              channels="RGB", output_format="auto")
 
     # Show button for creating Benchmark dataset
