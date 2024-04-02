@@ -34,10 +34,10 @@ def set_state(i):
 label_key=[]
 export_settings={}
 
+#TODO: Metadata fill - maybe a different (first) page
+#TODO: Continue editing the species list csv
 #TODO: have all of the text in a language-specific file -> https://phrase.com/blog/posts/translate-python-gnu-gettext/
 # could be a solution
-#TODO: Metadata fill - maybe a different page?
-#TODO: add link to a Yang Center species/label csv?
 
 # --------------------------------
 st.title('Benchmark Dataset Creator')
