@@ -39,10 +39,6 @@ export_settings={}
 #TODO: Metadata fill - maybe a different page?
 #TODO: add link to a Yang Center species/label csv?
 
-    #url = "https://www.streamlit.io"
-    #st.write("check out this [link](%s)" % url)
-    #st.markdown("check out this [link](%s)" % url)
-
 # --------------------------------
 st.title('Benchmark Dataset Creator')
 
@@ -197,8 +193,6 @@ if st.session_state.stage >= 1:
             os.makedirs(audio_path)
             os.makedirs(annot_path)
 
-            #output = st.empty()
-            #with st_capture(output.code):
             st.success('Data deleted')
 
 
@@ -280,6 +274,10 @@ if st.session_state.stage >= 3:
     col6.image('docs/illustrations/‎method_schematicV2_zoom.png', caption=None, width=None, use_column_width=True, clamp=False,
              channels="RGB", output_format="auto")
 
+    url = "https://docs.google.com/spreadsheets/d/1ScxYST26QIGE2d_ovEI1NtyPDmpWeMHJJ2LEu4nFwOw/edit?usp=sharing"
+    col6.write("Look up the [Yang Center species list](%s) for existing standardized labels and add yours to the list!"
+               "" % url)
+
     # Show button for creating Benchmark dataset
     col6.button('Save', help=None, on_click=set_state, args=[4])
 
@@ -291,8 +289,6 @@ if st.session_state.stage >= 5:
 
     # 11) Swap the labels
     # We want labels in a dictionary format with Key (old label): Value (new label)
-    # col5.subheader('Updated labels')
-    # col5.dataframe(new_labels_df, hide_index=True)
     new_labels_dict = new_labels_df.set_index('Original labels')['New labels'].to_dict()
 
     # Update the selection table
@@ -303,21 +299,7 @@ if st.session_state.stage >= 5:
         bc.benchmark_creator(selection_table_df_updated, export_settings, label_key)
 
     st.success('Benchmark dataset successfully created!')
-            ## New label dictionary
-            #new_labels_dict = {}
-            #st.write(len(new_labels['Original labels']))
 
-            #for ii in range(int(len(new_labels['Original labels']))):
-            #    print(ii)
-            #    print(new_labels['Original labels'].iloc(ii))
-            #    print(new_labels['New labels'].iloc(ii))
-
-
-
-            # Swap the labels
-            #selection_table_df = bc.update_labels(selection_table_df, new_labels_dict, label_key)
-
-            # Create the dataset
 
 
 

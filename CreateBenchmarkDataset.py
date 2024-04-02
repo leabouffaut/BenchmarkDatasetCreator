@@ -56,6 +56,8 @@ for lab in unique_labels:
     print(lab)
 
 # New label dictionnary
+# Yang Center species list: https://docs.google.com/spreadsheets/d/1ScxYST26QIGE2d_ovEI1NtyPDmpWeMHJJ2LEu4nFwOw/edit?usp=sharing"
+
 new_labels_dict = {
     'NARW': 'EUBGLA.NWAO.Upcall',
     'na': 'BALMUS.NWAO.Dcall',
