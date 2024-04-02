@@ -164,6 +164,7 @@ requirements.txt
 
 # Data folder 
 benchmark_data/
+lea_help/
 
 # Temporary files
 *.tmp
