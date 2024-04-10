@@ -213,7 +213,7 @@ if st.session_state.stage >= 2:
     st.subheader('Load selections')
     # # User-defined path to selection table(s)
     selection_table_path = st.text_input('Path to a selection table or selection table folder',
-                                         value="SelectionTable/MD02_truth_selections.txt",
+                                         value="e.g., SelectionTable/MD02_truth_selections.txt",
                                          type="default",
                                          help="(1) a complete path to a <b>selection table</b> if dealing with a single "
                                               "audio file in total or a project with multiple audio files, e.g. "
