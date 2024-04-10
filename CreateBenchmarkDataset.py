@@ -8,7 +8,7 @@
 import benchmark_dataset_creator as bc
 import pandas as pd
 
-# User-defined export settings dictionaryYY
+# User-defined export settings dictionary
 export_settings = {
     'Original project name': '2021_CLOCCB_BermudaPlantBank_S1105',
     'Audio duration (s)': 300,

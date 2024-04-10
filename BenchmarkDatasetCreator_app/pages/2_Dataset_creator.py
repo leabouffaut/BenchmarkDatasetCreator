@@ -8,7 +8,9 @@ from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 import pandas as pd
 
-
+st.set_page_config(
+    page_title='Benchmark Dataset Creator: Dataset',
+)
 
 # The function below is to help write the output
 @contextmanager
@@ -43,8 +45,8 @@ export_settings={}
 st.title('Benchmark Dataset Creator')
 
 # Add image
-st.image('docs/illustrations/‎method_schematicV2.png', caption=None, width=None, use_column_width=True, clamp=False,
-         channels="RGB", output_format="auto")
+#st.image('docs/illustrations/‎method_schematicV2.png', caption=None, width=None, use_column_width=True, clamp=False,
+#         channels="RGB", output_format="auto")
 
 # User-defined export settings dictionary
 st.sidebar.subheader('Export settings selection')
@@ -299,7 +301,3 @@ if st.session_state.stage >= 5:
         bc.benchmark_creator(selection_table_df_updated, export_settings, label_key)
 
     st.success('Benchmark dataset successfully created!')
-
-
-
-
