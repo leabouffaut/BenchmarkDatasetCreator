@@ -1,6 +1,7 @@
 # Import convention
 import streamlit as st
-from datetime import datetime, timezone
+#from datetime import datetime, timezone
+import datetime as dt
 import benchmark_dataset_creator as bc
 import os
 import shutil
@@ -9,6 +10,134 @@ from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 import pandas as pd
 import json
+import timezonefinder, pytz
+
+import datetime as dt
+import pytz
+import timezonefinder
+import streamlit as st
+
+def get_date_time(label, original_data_dictionary):
+    """
+    Function to obtain date and time information with correct formats.
+
+    Inputs:
+        - label (str): Label for the date and time entry.
+        - original_data_dictionary (dict): Original data dictionary containing deployment
+        information.
+
+    Returns:
+        - tuple: A tuple containing the date and time information in UTC and local time formats
+        following the ISO-8601 format e.g.,
+            * UTC format: 2010-08-27T23:58:03.3975Z
+            * Local time format (UTC-7h): 2023-03-15T10:54:00-07:00
+    """
+
+    # Create UI layout using Streamlit's columns
+    col_label, col_unused, col_utc = st.columns([0.2, 0.2, 0.6])
+
+    # Display label for the date and time entry
+    col_label.write(label)
+
+    # Toggle for UTC time
+    UTC_bool = col_utc.toggle(
+        'UTC',
+        value=True,
+        help=None,
+        key='utc' + label
+    )
+
+    # Create UI layout for date and timezone selection
+    col_date, col_tz = st.columns([0.7, 0.74])
+
+    # Date input field
+    date = col_date.date_input(
+        "Date",
+        value=None,
+        min_value=dt.datetime(1970, 1, 1),
+        max_value=dt.datetime.now(),
+        format="YYYY-MM-DD",
+        key='date' + label
+    )
+
+    # Get timezone from latitude and longitude
+    tf = timezonefinder.TimezoneFinder()
+    default_tz = tf.certain_timezone_at(
+        lat=original_data_dictionary['Deployment']['Position']['Lat.'],
+        lng=original_data_dictionary['Deployment']['Position']['Lon.']
+    )
+
+    # Select local timezone
+    if default_tz in pytz.common_timezones:
+        local_timezone = col_tz.selectbox(
+            'Select local time zone',
+            pytz.common_timezones,
+            index=pytz.common_timezones.index(default_tz),
+            key='tz' + label
+        )
+    else:
+        local_timezone = col_tz.selectbox(
+            'Select local time zone',
+            pytz.common_timezones,
+            key='tz' + label
+        )
+
+    # UI layout for time selection
+    col_hh, col_mm, col_ss = st.columns(3)
+
+    # Hour input
+    time_hh = int(col_hh.number_input(
+        'Hour',
+        min_value=0,
+        max_value=23,
+        format='%i',
+        step=1,
+        key='time_hh' + label
+    ))
+
+    # Minute input
+    time_mm = int(col_mm.number_input(
+        'Minutes',
+        min_value=0,
+        max_value=59,
+        format='%i',
+        step=1,
+        key='time_mm' + label
+    ))
+
+    # Second input
+    time_ss = int(col_ss.number_input(
+        'Seconds',
+        value=float(0),
+        min_value=float(0),
+        max_value=float(59.9999),
+        format='%.4f',
+        step=0.0001,
+        key='time_ss' + label
+    ))
+
+    # Assemble datetime information
+    date_time_entry = dt.datetime.combine(
+        date, dt.time(hour=time_hh, minute=time_mm, second=time_ss)
+    )
+
+    # Convert to UTC or local time based on toggle
+    if UTC_bool:
+        tz_entry = pytz.timezone('UTC')
+        date_time_utc = tz_entry.localize(date_time_entry)
+        date_time_local = date_time_utc.astimezone(pytz.timezone(local_timezone))
+    else:
+        tz_entry = pytz.timezone(local_timezone)
+        date_time_local = tz_entry.localize(date_time_entry)
+        date_time_utc = date_time_local.astimezone(pytz.timezone('UTC'))
+
+    # Format date and time in ISO format
+    date_time_local = str(date_time_local.replace(microsecond=0).isoformat())
+    date_time_utc = str(date_time_utc.replace(microsecond=0).isoformat()).replace('+00:00', 'Z')
+
+    return date_time_utc, date_time_local
+
+
 
 st.set_page_config(
     page_title='Benchmark Dataset Creator: Metadata',
@@ -220,8 +349,45 @@ map_col.map(df_map, size=5, zoom=15)
 st.subheader('Sampling details',
              help=None)
 
+#TODO: add test Start date < end date
+start_date_time_utc, start_date_time_local = get_date_time('Recording start',
+                                               original_data_dictionary)
+end_date_time_utc, end_date_time_local = get_date_time('Recording end',
+                                               original_data_dictionary)
+# Add times to dictionary
+original_data_dictionary['Sampling details']={
+        'Time': {
+            'UTC Start': start_date_time_utc,
+            'UTC End': end_date_time_utc,
+            'Local Start': start_date_time_local,
+            'Local End': end_date_time_local,
+        }}
 
-
+st.write('Digital sampling')
+original_data_dictionary['Sampling details']={
+        'Digital sampling': {
+            'Sample rate (kHz)': float(
+                st.number_input(
+                'Sample rate (kHz)',
+                value=1.000,
+                min_value=0.100,
+                max_value=None,
+                format='%.3f',
+                step=1.000,
+                label_visibility="visible")),
+            'Sample Bits': int(
+                st.number_input(
+                'Sample Bits',
+                value=8,
+                min_value=8,
+                max_value=24,
+                format='%i',
+                step=1,
+                label_visibility="visible")),
+        },
+        'Clipping': 'N', # Options, Y/N/DK
+        'Data Modificatons': 'Was the data modified? (resampled, normalized, filtered etc.?)',  # (Optional) free form text
+    },
 
 # Final) Submit button to write JSON file
 submitted = st.button('Submit')  # , on_click=increase_rows)
