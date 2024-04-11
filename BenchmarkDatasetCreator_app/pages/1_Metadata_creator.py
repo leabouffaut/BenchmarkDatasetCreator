@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 
 sys.path.insert(1, '.' + os.sep)
-import help_dictionnary as hd
+import help_dictionary as hd
 import create_metadata_functions as cm
 
 # Streamlit app page 1, Metadata input
