@@ -1,7 +1,38 @@
 {
     "Project ID": "e.g., 2013_UnivMD_Maryland_71485_MD02",
     "Deployment ID": 1,
-    "Data stewardship": {
-        "DOI": "https://doi.org/XX.XXXXX"
+    "Data stewardship": [
+        {
+            "Role": "Contact person",
+            "Name": "asd",
+            "Affiliation": "asd",
+            "Email Address": "asd"
+        }
+    ],
+    "Instrument": {
+        "Type": "Cornell - MARU",
+        "Settings": ""
+    },
+    "Deployment": {
+        "Position": {
+            "Lat.": 42.478327,
+            "Lon.": -76.450438
+        },
+        "Height/depth (m)": 10,
+        "Terrain elevation/water depth (m)": 10,
+        "Env. context": ""
+    },
+    "Sampling details": [
+        {
+            "Digital sampling": {
+                "Sample rate (kHz)": 1.0,
+                "Sample Bits": 8,
+                "Clipping": "Yes",
+                "Data Modificatons": ""
+            }
+        }
+    ],
+    "Annotations": {
+        "Annotation protocol": ""
     }
 }
