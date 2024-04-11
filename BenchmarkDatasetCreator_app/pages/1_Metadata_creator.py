@@ -233,6 +233,11 @@ if st.session_state.stage >= 4:
 
     # TODO: add test Start date < end date
 
+    # Declare the dictionary structure for sampling details
+    original_data_dictionary['Sampling details'] = {
+            'Time': '',
+            'Digital sampling':'',
+        }
     # Get the start and end time in both local time and UTC
     start_date_time_utc, start_date_time_local = cm.get_date_time('Recording start',
                                                                   original_data_dictionary)
@@ -240,15 +245,12 @@ if st.session_state.stage >= 4:
     end_date_time_utc, end_date_time_local = cm.get_date_time('Recording end',
                                                               original_data_dictionary)
 
-    # Add times to dictionary
-    original_data_dictionary['Sampling details'] = {
-        'Time': {
+    # Fill times in the dictionary
+    original_data_dictionary['Sampling details']['Time'] = {
             'UTC Start': start_date_time_utc,
             'UTC End': end_date_time_utc,
             'Local Start': start_date_time_local,
-            'Local End': end_date_time_local
-        }
-    }
+            'Local End': end_date_time_local}
 
     # Get the information on the digital sampling
     st.write('Digital sampling')
@@ -260,46 +262,45 @@ if st.session_state.stage >= 4:
     authorized_bit_depths = [8, 16, 24]
 
     # User inputs for all digital sampling
-    original_data_dictionary['Sampling details'] = {
-               'Digital sampling': {
-                   'Sample rate (kHz)': float(
-                       digital_sampling_col.number_input(
-                           'Sample rate (kHz)',
-                           value=1.000,
-                           min_value=0.100,
-                           max_value=None,
-                           format='%.3f',
-                           step=1.000,
-                           help=
-                           hd.metadata['Sampling details']['Digital sampling'][
-                               'Sample rate (kHz)'],
-                           label_visibility="visible")),
+    original_data_dictionary['Sampling details']['Digital sampling'] = {
+        'Sample rate (kHz)': float(digital_sampling_col.number_input(
+            'Sample rate (kHz)',
+            value=1.000,
+            min_value=0.100,
+            max_value=None,
+            format='%.3f',
+            step=1.000,
+            help=
+            hd.metadata['Sampling details']['Digital sampling'][
+                'Sample rate (kHz)'],
+            label_visibility="visible")),
 
-                   'Sample Bits': int(digital_sampling_col.selectbox(
-                       'Bit depth',
-                       authorized_bit_depths,
-                       help=hd.metadata['Sampling details']['Digital sampling'][
-                           'Sample Bits'])),
-                   'Clipping': digital_sampling_col.radio(
-                       'Clipping',
-                       ['Yes', 'No', 'Don\'t know'],
-                       horizontal=True,
-                       help=hd.metadata['Sampling details']['Digital sampling'][
-                           'Clipping']),
-                   'Data Modificatons': data_mod_col.text_area(
-                       'Data Modificatons',
-                       placeholder=
-                       hd.metadata['Sampling details']['Digital sampling'][
-                           'Data Modificatons'],
-                       label_visibility="visible",
-                       height=185)
-               },
-        },
+        'Sample Bits': int(digital_sampling_col.selectbox(
+            'Bit depth',
+            authorized_bit_depths,
+            help=hd.metadata['Sampling details']['Digital sampling'][
+                'Sample Bits'])),
+
+        'Clipping': digital_sampling_col.radio(
+            'Clipping',
+            ['Yes', 'No', 'Don\'t know'],
+            horizontal=True,
+            index=None,
+            help=hd.metadata['Sampling details']['Digital sampling'][
+                'Clipping']),
+        'Data Modifications': data_mod_col.text_area(
+            'Data Modifications',
+            placeholder=
+            hd.metadata['Sampling details']['Digital sampling'][
+                'Data Modifications'],
+            label_visibility="visible",
+            height=185)
+        }
+
     st.button('Next', key='Next5', help=None, on_click=set_state, args=[5])
 
 # 6) Get information on the annotation protocol
 if st.session_state.stage >= 5:
-    # Save info from above
     st.subheader('Annotations',
                  help=hd.metadata['Annotations']['General'])
     # Add columns
@@ -310,16 +311,24 @@ if st.session_state.stage >= 5:
 
     # Authorized annotation types
     authorized_annotations = ['SpeciesID', 'CallID']
+
+    # Initialize annotations section of the dictionary
     original_data_dictionary['Annotations'] = {
-        'Target signals': {
-            'Kind': annotation_questions_col.radio(
-                'Annotation type',
-                authorized_annotations,
-                horizontal=True,
-                help=hd.metadata['Annotations']['Target signals']['Kind']
-            ),
-        }
+        'Target signals': '',
+        'Non-target signals': '',
+        'Annotation protocol':''
     }
+
+    original_data_dictionary['Target signals'] = {
+        'Kind': annotation_questions_col.radio(
+            'Annotation type',
+            authorized_annotations,
+            horizontal=True,
+            index=None,
+            help=hd.metadata['Annotations']['Target signals']['Kind']
+        ),
+    }
+
     # About non-target signals
     annotation_protocol_col.write('Non-target signals')
 
@@ -327,16 +336,17 @@ if st.session_state.stage >= 5:
     yes_no = ['Yes', 'No']
 
     # noinspection PyTypedDict
-    original_data_dictionary['Annotations'] = {
-        'Non-target signals': {
-            'Noise': annotation_protocol_col.radio(
-                'Does the dataset contain a background noise class?',
-                yes_no,
-                horizontal=True),
+    original_data_dictionary['Annotations']['Non-target signals'] = {
+        'Noise': annotation_protocol_col.radio(
+            'Does the dataset contain a background noise class?',
+            yes_no,
+            index=None,
+            horizontal=True),
+        'Bio': '',
+        'Anthro': '',
+        'Geo': '',
         }
-    }
 
-    # Add the general question
     st.markdown("""
     <style>
     .small-font {
@@ -347,42 +357,44 @@ if st.session_state.stage >= 5:
     annotation_protocol_col.markdown(
         '<p class="small-font">Does the dataset contain selections with unique labels for:</p>', unsafe_allow_html=True)
 
-    original_data_dictionary['Annotations'] = {
-        'Non-target signals': {
-            'Bio': annotation_protocol_col.radio(
-                ':heavy_minus_sign: Other biological sounds(e.g., insect chorus, un-IDed call types, etc)?',
-                yes_no,
-                horizontal=True,
-                help=''),
-            'Anthro': annotation_protocol_col.radio(
-                ':heavy_minus_sign: Anthropogenic sounds (e.g., ship noise, piling, vehicles, chainsaw etc.)?',
-                yes_no,
-                horizontal=True,
-                help=''),
-            'Geo': annotation_protocol_col.radio(
-                ':heavy_minus_sign: Geophysical sounds (e.g., thunder, heavy rain, earthquakes etc.)?',
-                yes_no,
-                horizontal=True,
-                help='')
-        }
-    }
+    original_data_dictionary['Annotations']['Non-target signals']['Bio'] = \
+        annotation_protocol_col.radio(
+            ':heavy_minus_sign: Other biological sounds(e.g., insect chorus, un-IDed call types, etc)?',
+            yes_no,
+            index=None,
+            horizontal=True,
+            help='')
+    original_data_dictionary['Annotations']['Non-target signals']['Anthro'] = \
+        annotation_protocol_col.radio(
+            ':heavy_minus_sign: Anthropogenic sounds (e.g., ship noise, piling, vehicles, chainsaw etc.)?',
+            yes_no,
+            index=None,
+            horizontal=True,
+            help='')
+    original_data_dictionary['Annotations']['Non-target signals']['Geo'] = \
+        annotation_protocol_col.radio(
+            ':heavy_minus_sign: Geophysical sounds (e.g., thunder, heavy rain, earthquakes etc.)?',
+            yes_no,
+            index=None,
+            horizontal=True,
+            help='')
 
     # Optional field for annotation protocol
 
     # Free field for annotation protocol
-    original_data_dictionary['Annotations'] = {
-        'Annotation protocol': annotation_questions_col.text_area(
+    original_data_dictionary['Annotation protocol'] = \
+        annotation_questions_col.text_area(
             'Annotation protocol',
             placeholder=hd.metadata['Annotations']['Annotation protocol'],
             label_visibility="visible",
             height=254)
-    }
 
     st.button('Submit', key='Submit', help=None, on_click=set_state, args=[6])
 
 # 7) Submit button to write JSON file
 if st.session_state.stage >= 6:
-    print(original_data_dictionary)
+    st.success('Metadata successfully created!')
     st.json(original_data_dictionary)
     with open('test_write.json', 'w') as fp:
         json.dump(original_data_dictionary, fp, indent=4)
+

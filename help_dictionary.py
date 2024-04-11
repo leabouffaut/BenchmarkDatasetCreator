@@ -50,7 +50,7 @@ metadata = {
             'Clipping': 'Where there any clipping in the data? Clipping clipping is a form of waveform distortion that '
                         'occurs when an amplifier is pushed beyond its maximum limit (e.g., the source signal is too '
                         'loud), pushing it to overdrive. In that case, the output voltage is pushed to its maximum value.',
-            'Data Modificatons': '(Optional) Was the data modified e.g., resampled, normalized, filtered etc.?',
+            'Data Modifications': '(Optional) Was the data modified e.g., resampled, normalized, filtered etc.?',
         },
     },
     'Annotations': {

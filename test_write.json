@@ -3,14 +3,14 @@
     "Deployment ID": 1,
     "Data stewardship": [
         {
-            "Role": "Contact person",
-            "Name": "asd",
-            "Affiliation": "asd",
-            "Email Address": "asd"
+            "Role": "Data curator",
+            "Name": "lea",
+            "Affiliation": "hgjh",
+            "Email Address": "jhg"
         }
     ],
     "Instrument": {
-        "Type": "Cornell - MARU",
+        "Type": "Cornell - Rockhopper",
         "Settings": ""
     },
     "Deployment": {
@@ -22,17 +22,32 @@
         "Terrain elevation/water depth (m)": 10,
         "Env. context": ""
     },
-    "Sampling details": [
-        {
-            "Digital sampling": {
-                "Sample rate (kHz)": 1.0,
-                "Sample Bits": 8,
-                "Clipping": "Yes",
-                "Data Modificatons": ""
-            }
+    "Sampling details": {
+        "Time": {
+            "UTC Start": "2024-04-01T00:00:00Z",
+            "UTC End": "2024-04-11T00:00:00Z",
+            "Local Start": "2024-03-31T20:00:00-04:00",
+            "Local End": "2024-04-10T20:00:00-04:00"
+        },
+        "Digital sampling": {
+            "Sample rate (kHz)": 1.0,
+            "Sample Bits": 8,
+            "Clipping": "No",
+            "Data Modifications": ""
         }
-    ],
+    },
     "Annotations": {
+        "Target signals": "",
+        "Non-target signals": {
+            "Noise": "Yes",
+            "Bio": "Yes",
+            "Anthro": "No",
+            "Geo": "Yes"
+        },
         "Annotation protocol": ""
-    }
+    },
+    "Target signals": {
+        "Kind": "CallID"
+    },
+    "Annotation protocol": ""
 }
