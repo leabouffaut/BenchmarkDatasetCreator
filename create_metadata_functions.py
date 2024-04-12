@@ -2,6 +2,8 @@ import streamlit as st
 import datetime as dt
 import timezonefinder, pytz
 
+def set_state(i):
+    st.session_state.stage = i
 
 # Function definitions
 def get_date_time(label, data_dictionary):
@@ -12,6 +14,7 @@ def get_date_time(label, data_dictionary):
         - label (str): Label for the date and time entry.
         - original_data_dictionary (dict): Original data dictionary containing deployment
         information.
+        - st_session_state_stage:
 
     Returns:
         - tuple: A tuple containing the date and time information in UTC and local time formats
@@ -44,7 +47,7 @@ def get_date_time(label, data_dictionary):
         min_value=dt.datetime(1970, 1, 1),
         max_value=dt.datetime.now(),
         format="YYYY-MM-DD",
-        key='date' + label
+        key='date' + label,
     )
 
     # Get timezone from latitude and longitude
@@ -103,36 +106,75 @@ def get_date_time(label, data_dictionary):
         key='time_ss' + label
     ))
 
-    # Assemble datetime information
-    date_time_entry = dt.datetime.combine(
-        date, dt.time(hour=time_hh, minute=time_mm, second=time_ss)
-    )
+    if date is not None:
+        # Assemble datetime information
+        date_time_entry = dt.datetime.combine(
+            date, dt.time(hour=time_hh, minute=time_mm, second=time_ss)
+        )
 
-    # Convert to UTC or local time based on toggle
-    if UTC_bool:
-        tz_entry = pytz.timezone('UTC')
-        date_time_utc = tz_entry.localize(date_time_entry)
-        date_time_local = date_time_utc.astimezone(pytz.timezone(local_timezone))
+        # Convert to UTC or local time based on toggle
+        if UTC_bool:
+            tz_entry = pytz.timezone('UTC')
+            date_time_utc = tz_entry.localize(date_time_entry)
+            date_time_local = date_time_utc.astimezone(pytz.timezone(local_timezone))
+        else:
+            tz_entry = pytz.timezone(local_timezone)
+            date_time_local = tz_entry.localize(date_time_entry)
+            date_time_utc = date_time_local.astimezone(pytz.timezone('UTC'))
+
+        # Format date and time in ISO format
+        date_time_local = str(date_time_local.replace(microsecond=0).isoformat())
+        date_time_utc = str(date_time_utc.replace(microsecond=0).isoformat()).replace('+00:00', 'Z')
     else:
-        tz_entry = pytz.timezone(local_timezone)
-        date_time_local = tz_entry.localize(date_time_entry)
-        date_time_utc = date_time_local.astimezone(pytz.timezone('UTC'))
-
-    # Format date and time in ISO format
-    date_time_local = str(date_time_local.replace(microsecond=0).isoformat())
-    date_time_utc = str(date_time_utc.replace(microsecond=0).isoformat()).replace('+00:00', 'Z')
-
+        st.warning('Please enter a valid date')
+        date_time_utc = ''
+        date_time_local = ''
     return date_time_utc, date_time_local
+
+
+def check_dates(date_start_local, date_end_local):
+    """
+    Function to check if the end date occurs before the start date.
+
+    Inputs:
+        - date_start_local (str): Start date and time in local time format.
+        - date_end_local (str): End date and time in local time format.
+
+    Returns:
+        - None: This function doesn't return anything, but it raises an error if the end date occurs before the start date.
+
+    Raises:
+        - ValueError: If the end date occurs before the start date, an error is raised indicating the issue.
+    """
+
+    # Convert date strings to datetime objects
+    date_start = dt.datetime.fromisoformat(date_start_local)
+    date_end = dt.datetime.fromisoformat(date_end_local)
+
+    # Check
+    if date_end < date_start:
+        st.error('The entered recording end occurs before recording start')
 
 
 # Adding people and contact, by the press of a button
 def display_input_row(index, authorized_roles):
     """
-       Function to display a row of input fields for a person's information.
+    Function to display an input row with fields for Name, Affiliation, Email Address, and Role.
 
-       Input:
-           - index (int): Index of the input row.
+    Inputs:
+        - index (int): Index of the input row.
+        - authorized_roles (list): List of authorized roles for the Role field.
+
+    Returns:
+        - None: This function doesn't return anything, it's responsible for displaying the input row UI.
+
+    Side Effects:
+        - Displays input fields for Name, Affiliation, Email Address, and Role on the Streamlit app.
+
+    Note:
+        - Each input field has a unique key generated based on the index to ensure proper functioning and reactivity.
     """
+
     # Create four columns for each input field: Name, Affiliation, Email Address, Role
     role_col, name_col, affiliation_col, email_col = st.columns(4)
 

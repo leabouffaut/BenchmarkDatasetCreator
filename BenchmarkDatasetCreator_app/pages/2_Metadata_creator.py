@@ -16,11 +16,6 @@ import create_metadata_functions as cm
 if 'stage' not in st.session_state:
     st.session_state.stage = 0
 
-
-def set_state(i):
-    st.session_state.stage = i
-
-
 # Initialize the data saving dict
 original_data_dictionary = {}
 
@@ -54,7 +49,7 @@ if st.session_state.stage >= 0:  # NOTE: if we want the page to "disapear," chan
             help=hd.metadata['Deployment ID'],
             label_visibility="visible")
     }
-    st.button('Next', key='Next1', help=None, on_click=set_state, args=[1])
+    st.button('Next', key='Next1', help=None, on_click=cm.set_state, args=[1])
 
 # 2) Collect info on Data owners/curators
 # TODO: Add terms for local/indigenous partners
@@ -117,7 +112,7 @@ if st.session_state.stage >= 1:
             help=hd.metadata['Data stewardship']['DOI'],
             label_visibility="visible")}
 
-    st.button('Next', key='Next2', help=None, on_click=set_state, args=[2])
+    st.button('Next', key='Next2', help=None, on_click=cm.set_state, args=[2])
 
 # 3) Add information on the instrumentation
 if st.session_state.stage >= 2:
@@ -159,7 +154,7 @@ if st.session_state.stage >= 2:
             height=None, max_chars=None, key=None,
             label_visibility="visible")
     }
-    st.button('Next', key='Next3', help=None, on_click=set_state, args=[3])
+    st.button('Next', key='Next3', help=None, on_click=cm.set_state, args=[3])
 
 # 4) Add information about the deployment
 if st.session_state.stage >= 3:
@@ -224,80 +219,85 @@ if st.session_state.stage >= 3:
         'lon': [original_data_dictionary['Deployment']['Position']['Lon.']]
     })
     map_col.map(df_map, size=5, zoom=15)
-    st.button('Next', key='Next4', help=None, on_click=set_state, args=[4])
+    st.button('Next', key='Next4', help=None, on_click=cm.set_state, args=[4])
 
 # 5) Enter sampling details
 if st.session_state.stage >= 4:
     st.subheader('Sampling details',
                  help=hd.metadata['Sampling details']['General'])
 
-    # TODO: add test Start date < end date
-
     # Declare the dictionary structure for sampling details
     original_data_dictionary['Sampling details'] = {
-            'Time': '',
-            'Digital sampling':'',
-        }
+        'Time': '',
+        'Digital sampling': '',
+    }
     # Get the start and end time in both local time and UTC
-    start_date_time_utc, start_date_time_local = cm.get_date_time('Recording start',
-                                                                  original_data_dictionary)
+    start_date_time_utc, start_date_time_local = \
+        cm.get_date_time('Recording start', original_data_dictionary)
 
-    end_date_time_utc, end_date_time_local = cm.get_date_time('Recording end',
-                                                              original_data_dictionary)
+    end_date_time_utc, end_date_time_local = \
+        cm.get_date_time('Recording end', original_data_dictionary)
 
-    # Fill times in the dictionary
-    original_data_dictionary['Sampling details']['Time'] = {
+    # If the dates are filled
+    if (start_date_time_local is not None and end_date_time_local is not None) and \
+            (start_date_time_local != '' and end_date_time_local != ''):
+
+        # Check the dates make sense:
+        cm.check_dates(start_date_time_local, end_date_time_local)
+
+        # Fill times in the dictionary
+        original_data_dictionary['Sampling details']['Time'] = {
             'UTC Start': start_date_time_utc,
             'UTC End': end_date_time_utc,
             'Local Start': start_date_time_local,
             'Local End': end_date_time_local}
 
-    # Get the information on the digital sampling
-    st.write('Digital sampling')
+        # Get the information on the digital sampling
+        st.write('Digital sampling')
 
-    # Create two columns with different width for app display
-    digital_sampling_col, data_mod_col = st.columns([0.5, 0.5])
+        # Create two columns with different width for app display
+        digital_sampling_col, data_mod_col = st.columns([0.5, 0.5])
 
-    # Values for bit depth
-    authorized_bit_depths = [8, 16, 24]
+        # Values for bit depth
+        authorized_bit_depths = [8, 16, 24]
 
-    # User inputs for all digital sampling
-    original_data_dictionary['Sampling details']['Digital sampling'] = {
-        'Sample rate (kHz)': float(digital_sampling_col.number_input(
-            'Sample rate (kHz)',
-            value=1.000,
-            min_value=0.100,
-            max_value=None,
-            format='%.3f',
-            step=1.000,
-            help=
-            hd.metadata['Sampling details']['Digital sampling'][
-                'Sample rate (kHz)'],
-            label_visibility="visible")),
+        # User inputs for all digital sampling
+        original_data_dictionary['Sampling details']['Digital sampling'] = {
+            'Sample rate (kHz)': float(digital_sampling_col.number_input(
+                'Sample rate (kHz)',
+                value=1.000,
+                min_value=0.100,
+                max_value=None,
+                format='%.3f',
+                step=1.000,
+                help=
+                hd.metadata['Sampling details']['Digital sampling'][
+                    'Sample rate (kHz)'],
+                label_visibility="visible")),
 
-        'Sample Bits': int(digital_sampling_col.selectbox(
-            'Bit depth',
-            authorized_bit_depths,
-            help=hd.metadata['Sampling details']['Digital sampling'][
-                'Sample Bits'])),
+            'Sample Bits': int(digital_sampling_col.selectbox(
+                'Bit depth',
+                authorized_bit_depths,
+                help=hd.metadata['Sampling details']['Digital sampling'][
+                    'Sample Bits'])),
 
-        'Clipping': digital_sampling_col.radio(
-            'Clipping',
-            ['Yes', 'No', 'Don\'t know'],
-            horizontal=True,
-            index=None,
-            help=hd.metadata['Sampling details']['Digital sampling'][
-                'Clipping']),
-        'Data Modifications': data_mod_col.text_area(
-            'Data Modifications',
-            placeholder=
-            hd.metadata['Sampling details']['Digital sampling'][
-                'Data Modifications'],
-            label_visibility="visible",
-            height=185)
+            'Clipping': digital_sampling_col.radio(
+                'Clipping',
+                ['Yes', 'No', 'Don\'t know'],
+                horizontal=True,
+                index=None,
+                help=hd.metadata['Sampling details']['Digital sampling'][
+                    'Clipping']),
+            'Data Modifications': data_mod_col.text_area(
+                'Data Modifications',
+                placeholder=
+                hd.metadata['Sampling details']['Digital sampling'][
+                    'Data Modifications'],
+                label_visibility="visible",
+                height=185)
         }
 
-    st.button('Next', key='Next5', help=None, on_click=set_state, args=[5])
+        st.button('Next', key='Next5', help=None, on_click=cm.set_state, args=[5])
 
 # 6) Get information on the annotation protocol
 if st.session_state.stage >= 5:
@@ -316,7 +316,7 @@ if st.session_state.stage >= 5:
     original_data_dictionary['Annotations'] = {
         'Target signals': '',
         'Non-target signals': '',
-        'Annotation protocol':''
+        'Annotation protocol': ''
     }
 
     original_data_dictionary['Target signals'] = {
@@ -345,7 +345,7 @@ if st.session_state.stage >= 5:
         'Bio': '',
         'Anthro': '',
         'Geo': '',
-        }
+    }
 
     st.markdown("""
     <style>
@@ -359,7 +359,7 @@ if st.session_state.stage >= 5:
 
     original_data_dictionary['Annotations']['Non-target signals']['Bio'] = \
         annotation_protocol_col.radio(
-            ':heavy_minus_sign: Other biological sounds(e.g., insect chorus, un-IDed call types, etc)?',
+            ':heavy_minus_sign: Other biological sounds (e.g., insect chorus, un-IDed call types, etc)?',
             yes_no,
             index=None,
             horizontal=True,
@@ -389,7 +389,7 @@ if st.session_state.stage >= 5:
             label_visibility="visible",
             height=254)
 
-    st.button('Submit', key='Submit', help=None, on_click=set_state, args=[6])
+    st.button('Submit', key='Submit', help=None, on_click=cm.set_state, args=[6])
 
 # 7) Submit button to write JSON file
 if st.session_state.stage >= 6:
@@ -397,4 +397,3 @@ if st.session_state.stage >= 6:
     st.json(original_data_dictionary)
     with open('test_write.json', 'w') as fp:
         json.dump(original_data_dictionary, fp, indent=4)
-
