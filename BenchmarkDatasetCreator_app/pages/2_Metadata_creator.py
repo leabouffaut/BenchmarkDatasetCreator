@@ -2,6 +2,8 @@
 # This page is associated with a series of functions, in create_metadata_functions.py
 # The text help for streamlit user inputs is integrated in help_dictionary.py in the metadata dict
 
+# Creates original_data_dictionary
+
 # Imports
 import json
 import os
@@ -18,10 +20,10 @@ import create_metadata_functions as cm
 st.set_page_config(
     page_title='Benchmark Dataset Creator: Metadata',
 )
-st.title('Benchmark Metadata Creator')
-st.header('Information on the original data')
+st.title('Benchmark Dataset Creator')
+st.header('Collect metadata')
 
-# Retreive data from previous page
+# Retrieve data from previous page
 if not hasattr(st.session_state, 'export_folder_dictionary'):
     st.error('Project information missing')
     link_to_project = "pages" + os.sep + "1_Project_creator.py"
@@ -391,8 +393,12 @@ else:
 
     # 7) Submit button to write JSON file
     if st.session_state.stage >= 8:
+        metadata_save = {
+            'Original data': original_data_dictionary,
+            'Benchmarked data': ''
+        }
         with open(export_folder_dictionary['Metadata file'], 'w') as fp:
-            json.dump(original_data_dictionary, fp, indent=4)
+            json.dump(metadata_save, fp, indent=4)
 
         st.success('Metadata successfully created!')
 

@@ -3,6 +3,8 @@
 # The text help for streamlit user inputs is integrated in help_dictionary.py in
 # the folders dict
 
+# Creates export_folder_dictionary
+
 import streamlit as st
 import help_dictionary as hd
 import create_metadata_functions as cm
@@ -14,8 +16,8 @@ import shutil
 st.set_page_config(
     page_title='Benchmark Dataset Creator: Project',
 )
-st.title('Benchmark Metadata Creator')
-st.header('Project creator')
+st.title('Benchmark Dataset Creator')
+st.header('Create project')
 
 # Create a "staged" version of the program so not all shows up at once
 if 'stage' not in st.session_state:
@@ -128,8 +130,9 @@ if st.session_state.stage >= 1:
         # Ask the user whether to delete existing data
         if col1.button('Delete data', help=None, on_click=set_state, args=[2]):
             # Delete existing audio and annotations folders
-            shutil.rmtree(audio_path)
-            shutil.rmtree(annot_path)
+            #shutil.rmtree(audio_path)
+            #shutil.rmtree(annot_path)
+            shutil.rmtree(metadata_path)
 
             # Recreate audio and annotations folders
             os.makedirs(audio_path)

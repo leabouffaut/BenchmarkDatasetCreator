@@ -146,7 +146,7 @@ def check_export_settings(export_settings):
         - ValueError: If any required field in the wanted_fields_list is missing in the export_settings 
         dictionary.
     """
-    wanted_fields_list = ['Original project name', 'Audio duration (s)', 'fs (Hz)', 'Bit depth', 'Export label',
+    wanted_fields_list = ['Project ID', 'Deployment ID', 'Audio duration (s)', 'fs (Hz)', 'Bit depth', 'Export label',
                           'Split export selections', 'Export folder']
     missing = []
 
