@@ -1,9 +1,11 @@
 metadata = {
-    'Project ID': "The name of your project",
+    'Project ID': "The name of your project. This entry will be used to  keep track of the origin of the data, "
+                  "as a part of the folder architecture and file naming. Please do not end this entry by / or \ and "
+                  "avoid spaces",
     'Deployment ID': "A number used to help distinguish groups of deployments",
     'Data stewardship': {
         'General': "Information and contact of the people/institutions/groups that contributed to this dataset. "
-                  "Show and fill the fields of entry by pushing the 'Add co-creator' button",
+                   "Show and fill the fields of entry by pushing the 'Add co-creator' button",
         'Role': '',
         'Name': '',
         'Affiliation': '',
@@ -19,9 +21,9 @@ metadata = {
     },
     'Deployment': {
         'General': "Information on the deployment location and conditions. "
-                    "The Latitude and Longitude (°) entries take 6 decimals to enable sub-meter "
-                    "precision at all latitudes. The map is used as a visual tool to verify "
-                    "user entry.",
+                   "The Latitude and Longitude (°) entries take 6 decimals to enable sub-meter "
+                   "precision at all latitudes. The map is used as a visual tool to verify "
+                   "user entry.",
         'Position': {
             'Lat.': '',
             'Lon.': '',
@@ -42,7 +44,7 @@ metadata = {
             'Local Start': '',
             'Local End': '',
         },
-        'Digital sampling':{
+        'Digital sampling': {
             'Sample rate (kHz)': 'Recordings sampling frequency',
             'Sample Bits': 'Select the bit depth of the original data. The bit depth determines the number of possible '
                            'amplitude values we can record for each audio sample; for SWIFT units, it is set to 16 bits and '
@@ -54,18 +56,26 @@ metadata = {
         },
     },
     'Annotations': {
-        'General':"Fill up information about the annotation protocol",
-        'Target signals':{
+        'General': "Fill up information about the annotation protocol",
+        'Target signals': {
             'Kind': 'SpeciesID: the label are produced at the species level \n, '
-                     'CallID: the labels are produced at the call level',
+                    'CallID: the labels are produced at the call level',
         },
         'Non-target signals': {
             'Noise': '',
-            'Bio':'',
-            'Anthro':'',
-            'Geo':'',
-            },
+            'Bio': '',
+            'Anthro': '',
+            'Geo': '',
+        },
         'Annotation protocol': "(Optional) Details on the annotation protocol e.g., number of analysts, rules, "
                                "verification protocol etc.",
-        }
     }
+}
+
+folder = {
+    'Project ID': "The name of your project. This entry will be used to  keep track of the origin of the data, "
+                  "as a part of the folder architecture and file naming. Please do not end this entry by / or \ and "
+                  "avoid spaces",
+    'Deployment ID': "A number used to help distinguish groups of deployments",
+    'Export folder': "Export folder is where the data and metadata will be saved."
+}

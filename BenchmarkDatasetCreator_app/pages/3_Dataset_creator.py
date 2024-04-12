@@ -1,4 +1,7 @@
-# Import convention
+# Streamlit app page 3, Dataset creator
+# This page is associated with a series of functions, in benchmark_dataset_creator.py
+
+# Imports
 import streamlit as st
 import benchmark_dataset_creator as bc
 import os
@@ -8,6 +11,7 @@ from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 import pandas as pd
 
+# Titles
 st.set_page_config(
     page_title='Benchmark Dataset Creator: Dataset',
 )
@@ -36,17 +40,12 @@ def set_state(i):
 label_key=[]
 export_settings={}
 
-#TODO: Metadata fill - maybe a different (first) page
 #TODO: Continue editing the species list csv
 #TODO: have all of the text in a language-specific file -> https://phrase.com/blog/posts/translate-python-gnu-gettext/
 # could be a solution
 
 # --------------------------------
 st.title('Benchmark Dataset Creator')
-
-# Add image
-#st.image('docs/illustrations/‎method_schematicV2.png', caption=None, width=None, use_column_width=True, clamp=False,
-#         channels="RGB", output_format="auto")
 
 # User-defined export settings dictionary
 st.sidebar.subheader('Export settings selection')

@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 # ---------------------------
 #  User interaction functions
-def query_yes_no(question, default="yes"):
+def query_yes_no(question, default="yes"): # TODO moved to create_folders_functions -- delete
     """
     Ask a yes/no question via raw_input() and return their answer.
 
@@ -60,7 +60,7 @@ def query_yes_no(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
-def path_print(start_path):
+def path_print(start_path): # TODO moved to create_folders_functions -- delete
     """
     Prints the content of the folder designated by startpath
     """
@@ -85,7 +85,7 @@ def path_print(start_path):
             print('{}{}'.format(sub_indent, f))
 
 
-def create_path(export_settings):
+def create_path(export_settings): # TODO moved to create_folders_functions -- delete
     """
     Function to create export folders following this architecture:
     Export folder/
