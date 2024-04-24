@@ -85,53 +85,6 @@ def path_print(start_path): # TODO moved to create_folders_functions -- delete
             print('{}{}'.format(sub_indent, f))
 
 
-def create_path(export_settings): # TODO moved to create_folders_functions -- delete
-    """
-    Function to create export folders following this architecture:
-    Export folder/
-    |... Original project name/
-    |... |... audio/
-    |... |... annotations/
-
-    Displays a warning if the folders already exist, which can be overwritten based on user input.
-    """
-    # Construct paths for audio and annotations folders based on export settings
-    audio_path = os.path.join(export_settings['Export folder'], export_settings['Original project name'], 'audio')
-    annot_path = os.path.join(export_settings['Export folder'], export_settings['Original project name'], 'annotations')
-
-    # If the audio folder does not exist in path
-    if not os.path.exists(audio_path):
-        # Create the audio and annotations folders
-        os.makedirs(audio_path)
-        os.makedirs(annot_path)
-        # Update export settings with the paths
-        export_settings['Audio export folder'] = audio_path
-        export_settings['Annotation export folder'] = annot_path
-
-    # If the audio folder already exists
-    else:
-        # Display a warning message
-        print(f'Warning: This folder already exists, data may be deleted: \n')
-        print(path_print(os.path.join(export_settings['Export folder'], export_settings['Original project name'])))
-
-        # Ask the user whether to delete existing data
-        if query_yes_no(f'Delete data?', default="yes") == True:
-
-            # Delete existing audio and annotations folders
-            shutil.rmtree(audio_path)
-            shutil.rmtree(annot_path)
-
-            # Recreate audio and annotations folders
-            os.makedirs(audio_path)
-            os.makedirs(annot_path)
-
-            # Update export settings with the new paths
-            export_settings['Audio export folder'] = audio_path
-            export_settings['Annotation export folder'] = annot_path
-        else:
-            # Prompt the user to change the export folder path
-            print(f"Please change the export folder path")
-
 
 def check_export_settings(export_settings):
     """
