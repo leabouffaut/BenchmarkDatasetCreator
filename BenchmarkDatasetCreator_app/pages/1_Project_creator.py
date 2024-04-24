@@ -1,9 +1,11 @@
 # Streamlit app page 2, Metadata input
+#
 # This page is associated with a series of functions, in create_folders_functions.py
 # The text help for streamlit user inputs is integrated in help_dictionary.py in
-# the folders dict
-
-# Creates export_folder_dictionary
+# the folder dictionary
+#
+# >> This page creates the export_folder_dictionary
+# saved in st.session_state.export_folder_dictionary
 
 import streamlit as st
 import help_dictionary as hd

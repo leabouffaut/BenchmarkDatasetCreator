@@ -77,5 +77,17 @@ folder = {
                   "as a part of the folder architecture and file naming. Please do not end this entry by / or \ and "
                   "avoid spaces",
     'Deployment ID': "A number used to help distinguish groups of deployments",
-    'Export folder': "Export folder is where the data and metadata will be saved."
+    'Export folder': "Export folder is where the data and metadata will be saved.",
+    'Audio export folder': '',  # Created without user input - Path to export audio
+    'Annotation export folder': '',  # Created without user input - Path to export annotations
+    'Metadata folder': '',  # Created without user input - Path to export Metadata
+    'Metadata file': '',  # Created without user input - Full path + name of the Metadata file
+    'Annotation CSV file': '',  # Created without user input - Full path + name of the recap CSV annotation file
+    'Audio-Seltab Map CSV file': '',  # Created without user input - Full path + name of the CSV audio-annotation
+    # association file
+
+}
+
+export = {
+
 }

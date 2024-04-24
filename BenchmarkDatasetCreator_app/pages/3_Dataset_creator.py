@@ -1,6 +1,6 @@
 # Streamlit app page 3, Dataset creator
 # This page is associated with a series of functions, in benchmark_dataset_creator.py
-
+# The text help is in
 # Imports
 import streamlit as st
 import benchmark_dataset_creator as bc
@@ -54,12 +54,9 @@ export_settings = {}
 # TODO: add BDC info to the metadata
 # could be a solution
 
-# --------------------------------
-st.title('Benchmark Dataset Creator')
-
 # User-defined export settings dictionary
 if st.session_state.stage >= 9:
-    st.sidebar.subheader('Export settings selection')
+    st.subheader('Export settings selection')
 
     # Needed variables
     authorized_user_fs = ['1 kHz', '2 kHz', '8 kHz', '16 kHz', '32 kHz', '48 kHz',
@@ -67,18 +64,18 @@ if st.session_state.stage >= 9:
     authorized_user_bit_depth = ['8 Bits', '16 Bits', '24 bits']
 
     export_settings_user_input = {
-        'Original project name':
-            st.sidebar.text_input(
-                'Original project name',
-                value="e.g., 2013_UnivMD_Maryland_71485_MD02",
-                type="default",
-                help="This entry will be used to  keep track of the origin of "
-                     "the data, as a part of the folder architecture and file naming."
-                     "please do not end this entry by / or \ and avoid spaces",
-                label_visibility="visible"),
+        #'Original project name':
+        #    st.text_input(
+        #        'Original project name',
+        #        value="e.g., 2013_UnivMD_Maryland_71485_MD02",
+        #        type="default",
+        #        help="This entry will be used to  keep track of the origin of "
+        #             "the data, as a part of the folder architecture and file naming."
+        #             "please do not end this entry by / or \ and avoid spaces",
+        #        label_visibility="visible"),
 
         'Audio duration (s)':
-            st.sidebar.slider(
+            st.slider(
                 'Audio duration (min)',
                 min_value=1, max_value=60, value=10, step=1, format='%i',
                 help="Set  the chosen export audio file duration for the Benchmark "
@@ -89,7 +86,7 @@ if st.session_state.stage >= 9:
                 label_visibility="visible") * 60,
 
         'fs (Hz)':
-            st.sidebar.selectbox(
+            st.selectbox(
                 'Sampling Frequency', authorized_user_fs,
                 index=5,
                 help='The sampling frequency is to be set at minima at double the maximum frequency of'
@@ -97,7 +94,7 @@ if st.session_state.stage >= 9:
                 label_visibility="visible"),
 
         'Bit depth':
-            st.sidebar.selectbox(
+            st.selectbox(
                 'Bit depth', authorized_user_bit_depth,
                 index=2,
                 help='The bit depth determines the number of possible amplitude values we can record '
@@ -106,7 +103,7 @@ if st.session_state.stage >= 9:
                 label_visibility="visible"),
 
         'Export label':
-            st.sidebar.text_input(
+            st.text_input(
                 'Export label',
                 value="Tags",
                 type="default",
@@ -115,7 +112,7 @@ if st.session_state.stage >= 9:
                 label_visibility="visible"),
 
         'Split export selections':
-            st.sidebar.toggle(
+            st.toggle(
                 'Split export selections',
                 value=False,
                 help="Split export selection specifies the method when a selection is at the "
@@ -136,7 +133,7 @@ if st.session_state.stage >= 9:
     if export_settings_user_input['Split export selections']:
         export_settings_user_input['Split export selections'] = [
             export_settings_user_input['Split export selections'],
-            st.sidebar.number_input(
+            st.number_input(
                 'Minimum duration (s)',
                 value=float(1.0),
                 min_value=float(0),
@@ -154,14 +151,14 @@ if st.session_state.stage >= 9:
             export_settings_user_input['Split export selections'], 0]
 
     export_settings_user_input['Export folder'] = \
-        st.sidebar.text_input(
+        st.text_input(
             'Export folder',
             value="e.g., benchmark_data",
             type="default",
             help="Export folder is where the data will be saved.",
             label_visibility="visible")
 
-    st.sidebar.button('Done', help=None, on_click=cm.set_state, args=[10])
+    st.button('Done', help=None, on_click=cm.set_state, args=[10])
 
 if st.session_state.stage >= 10:
     # 1) continued, Entries in the correct format
