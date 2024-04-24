@@ -88,6 +88,50 @@ folder = {
 
 }
 
+url = "https://docs.google.com/spreadsheets/d/1ScxYST26QIGE2d_ovEI1NtyPDmpWeMHJJ2LEu4nFwOw/edit?usp=sharing"
+
 export = {
+    'Digital sampling': {
+        'Audio duration (s)': "Set  the chosen export audio file duration for the Benchmark dataset in minutes. Our "
+                              "recommendation is to set it to encompass the vocalization(s) of interest but also some "
+                              "context. What is the minimum duration that would represent the signal's repetition or "
+                              "call/cue rate (with several annotations)?",
+        'fs (Hz)': 'The sampling frequency is to be set at minima at double the maximum frequency of the signals of '
+                   'interest. If relevant, BirdNET uses fs = 48 kHz.',
+        'Bit depth': 'The bit depth determines the number of possible amplitude values we can record for each audio '
+                     'sample; for SWIFT units, it is set to 16 bits and for Rockhopper to 24 bits.',
+    },
+    'Selections': {
+        'Export label': "Defines the name of the label column for the created export Raven selection tables",
+        'Split export selections': {
+            'General':
+                "Split export selection specifies the method when a selection is at the junction "
+                "between two export audio files. [Recommended] If you have hundreds or even tens of "
+                "selections of your target signals, we would recommend to keep this parameter set to "
+                "false. [Other] This parameter can be handy if, for example, you selected long periods "
+                "of background noise (long compared to the annotations of signals of interest) that "
+                "could be split across two audio export files. In that case, you can set the minimum "
+                "duration to something longer than your signals of interest or to 3 s if you plan to "
+                "work with BirdNET. Another use case is if you have a very tight selection around your "
+                "signal of interest (in time) and want even a very small portion of that signal to be "
+                "labeled.",
+            'Minimum duration (s)':
+                "Specify the minimum duration to report an annotation in the selection table in seconds",
+        },
+        'Path':
+            "(1) a complete path to a <b>selection table</b> if dealing with a single "
+            "audio file in total or a project with multiple audio files, e.g. "
+            "`'SelectionTable/MD02_truth_selections.txt'`"
+            "(2) a path to a <b>folder</b> if dealing with one selection table associated"
+            " with a single audio file, e.g., `'SelectionTables/'`",
+        'Label': "User-defined label key, should be a column title in the displayed Selection table",
+        'Label editor': {
+            'Help': '💡 To update existing labels, edit the `New labels` column.',
+            'Label list': "Look up the [Yang Center species list](%s) for existing standardized labels and add yours "
+                          "to the list!" % url
+        },
+
+    },
+    'Export folder': "Export folder is where the data will be saved.",
 
 }

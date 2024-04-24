@@ -2,12 +2,17 @@
 # This page is associated with a series of functions, in benchmark_dataset_creator.py
 # The text help is in
 # Imports
+import json
+import os
+import sys
 import streamlit as st
 import benchmark_dataset_creator as bc
 import create_folders_functions as cf
 import create_metadata_functions as cm
 import os
 import shutil
+sys.path.insert(1, '.' + os.sep)
+import help_dictionary as hd
 
 import pandas as pd
 
@@ -78,28 +83,21 @@ if st.session_state.stage >= 9:
             st.slider(
                 'Audio duration (min)',
                 min_value=1, max_value=60, value=10, step=1, format='%i',
-                help="Set  the chosen export audio file duration for the Benchmark "
-                     "dataset in minutes. Our recommendation is to set it to encompass the "
-                     "vocalization(s) of interest but also some context. What is the minimum "
-                     "duration that would represent the signal's repetition or "
-                     "call/cue rate (with several annotations)?",
+                help=hd.export['Digital sampling']['Audio duration (s)'],
                 label_visibility="visible") * 60,
 
         'fs (Hz)':
             st.selectbox(
                 'Sampling Frequency', authorized_user_fs,
                 index=5,
-                help='The sampling frequency is to be set at minima at double the maximum frequency of'
-                     ' the signals of interest. If relevant, BirdNET uses fs = 48 kHz ',
+                help=hd.export['Digital sampling']['fs (Hz)'],
                 label_visibility="visible"),
 
         'Bit depth':
             st.selectbox(
                 'Bit depth', authorized_user_bit_depth,
                 index=2,
-                help='The bit depth determines the number of possible amplitude values we can record '
-                     'for each audio sample; for SWIFT units, it is set to 16 bits and for Rockhopper '
-                     'to 24 bits.',
+                help=hd.export['Digital sampling']['Bit depth'],
                 label_visibility="visible"),
 
         'Export label':
@@ -107,29 +105,17 @@ if st.session_state.stage >= 9:
                 'Export label',
                 value="Tags",
                 type="default",
-                help="Defines the name of the label column for the created export Raven selection"
-                     "tables",
+                help=hd.export['Export label'],
                 label_visibility="visible"),
 
         'Split export selections':
             st.toggle(
                 'Split export selections',
                 value=False,
-                help="Split export selection specifies the method when a selection is at the "
-                     "junction between two export audio files."
-                     "[Recommended] If you have hundreds or even tens of selections of your target signals, "
-                     "we would recommend to keep this parameter set to false. "
-                     "[Other] This parameter can be handy if, for example, you "
-                     "selected long periods of background noise (long compared to the "
-                     "annotations of signals of interest) that could be split across two audio "
-                     "export files. In that case, you can set the minimum duration to something"
-                     " longer than your signals of interest or to 3 s if you plan to work with "
-                     "BirdNET. Another use case is if you have a very tight selection around "
-                     "your signal of interest (in time) and want even a very small portion of "
-                     "that signal to be labeled.",
+                help=hd.export['Split export selections']['General'],
                 label_visibility="visible")}
 
-    # User-chosen split output #TODO: test this
+    # User-chosen split output
     if export_settings_user_input['Split export selections']:
         export_settings_user_input['Split export selections'] = [
             export_settings_user_input['Split export selections'],
@@ -142,8 +128,7 @@ if st.session_state.stage >= 9:
                         'Audio duration (s)']),
                 format='%.1f',
                 step=0.1,
-                help="Specify the minimum duration to report an "
-                     "annotation in the selection table in seconds",
+                help=hd.export['Split export selections']['Minimum duration (s)'],
                 label_visibility="visible")
         ]
     else:
@@ -155,7 +140,7 @@ if st.session_state.stage >= 9:
             'Export folder',
             value="e.g., benchmark_data",
             type="default",
-            help="Export folder is where the data will be saved.",
+            help=hd.export['Export folder'],
             label_visibility="visible")
 
     st.button('Done', help=None, on_click=cm.set_state, args=[10])
@@ -165,26 +150,35 @@ if st.session_state.stage >= 10:
     # Create export_settings based on the user input:
     export_settings = {
         'Project ID': export_folder_dictionary['Project ID'],
-        'Audio duration (s)': export_settings_user_input['Audio duration (s)'],
-        'Export label': export_settings_user_input['Export label'],
-        'Split export selections': export_settings_user_input['Split export selections'],
-        'Export folder': export_folder_dictionary['Export folder'],
-        'Audio export folder': export_folder_dictionary['Audio export folder'],
-        'Annotation export folder': export_folder_dictionary['Audio export folder'],
-        'Metadata folder': export_folder_dictionary['Metadata folder'],
-        'Metadata file': export_folder_dictionary['Metadata file'],
-        'Annotation CSV file': export_folder_dictionary['Annotation CSV file'],
-        'Audio-Seltab Map CSV file': export_folder_dictionary['Audio-Seltab Map CSV file']
-    }
+        'Deployment ID': export_folder_dictionary['Deployment ID'],
+        'Digital sampling': {
+            'Audio duration (s)': export_settings_user_input['Audio duration (s)'],
+        },
+
+        'Selections': {
+            'Export label': export_settings_user_input['Export label'],
+            'Split export selections': export_settings_user_input['Split export selections'],
+        },
+
+        'Export folders': {
+            'Export folder': export_folder_dictionary['Export folder'],
+            'Audio export folder': export_folder_dictionary['Audio export folder'],
+            'Annotation export folder': export_folder_dictionary['Audio export folder'],
+            'Metadata folder': export_folder_dictionary['Metadata folder'],
+            'Metadata file': export_folder_dictionary['Metadata file'],
+            'Annotation CSV file': export_folder_dictionary['Annotation CSV file'],
+            'Audio-Seltab Map CSV file': export_folder_dictionary['Audio-Seltab Map CSV file']
+        },
+        }
 
     # Write fs in the correct format (str to num)
     fs_wanted = [1, 2, 8, 16, 32, 48, 96, 192, 256, 384, 500]
-    export_settings['fs (Hz)'] = \
+    export_settings['Digital sampling']['fs (Hz)'] = \
         fs_wanted[authorized_user_fs.index(export_settings_user_input['fs (Hz)'])] * 1000
 
     # Write fs in the correct format (str to num)
     bit_depth_wanted = [8, 16, 24]
-    export_settings['Bit depth'] = \
+    export_settings['Digital sampling']['Bit depth'] = \
         bit_depth_wanted[authorized_user_bit_depth.index(export_settings_user_input['Bit depth'])]
 
     # 3) Run check on the user-defined entries and show output
@@ -199,11 +193,7 @@ if st.session_state.stage >= 10:
             'Path to a selection table or selection table folder',
             value="e.g., SelectionTable/MD02_truth_selections.txt",
             type="default",
-            help="(1) a complete path to a <b>selection table</b> if dealing with a single "
-                 "audio file in total or a project with multiple audio files, e.g. "
-                 "`'SelectionTable/MD02_truth_selections.txt'`"
-                 "(2) a path to a <b>folder</b> if dealing with one selection table associated"
-                 " with a single audio file, e.g., `'SelectionTables/'`",
+            help=hd.export['Selections']['Path'],
             label_visibility="visible")
 
     # 4) Load selection table and show output
@@ -229,7 +219,7 @@ if st.session_state.stage >= 10:
             'Selection table label',
             value="e.g., Tags",
             type="default",
-            help="User-defined label key, should be in the displayed Selection table",
+            help=hd.export['Selections']['Label'],
             label_visibility="visible",
             on_change=cm.set_state, args=[11]),
 
@@ -262,16 +252,14 @@ if st.session_state.stage >= 11:
             num_rows="fixed",
             disabled=["Original labels"],
             hide_index=True)
-    col6.write('💡 To update existing labels, edit the `New labels` column.')
+    col6.write(hd.export['Selections']['Label editor']['Help'])
     col6.image(
         'docs/illustrations/‎method_schematicV2_zoom.png',
         caption=None, width=None, use_column_width=True,
         clamp=False,
         channels="RGB", output_format="auto")
 
-    url = "https://docs.google.com/spreadsheets/d/1ScxYST26QIGE2d_ovEI1NtyPDmpWeMHJJ2LEu4nFwOw/edit?usp=sharing"
-    col6.write("Look up the [Yang Center species list](%s) for existing standardized labels and add yours to the list!"
-               "" % url)
+    col6.write(hd.export['Selections']['Label editor']['Label list'])
 
     # Show button for creating Benchmark dataset
     col6.button('Save', help=None, on_click=cm.set_state, args=[12])
