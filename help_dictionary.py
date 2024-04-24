@@ -5,13 +5,13 @@ metadata = {
         "avoid spaces",
     'Deployment ID': # Becomes DeploymentId in the standard
         "A number used to help distinguish groups of deployments",
-    'Data stewardship': {
+    'Data stewardship': { # Becomes DataStewardship in the standard
         'General': "Information and contact of the people/institutions/groups that contributed to this dataset. "
                    "Show and fill the fields of entry by pushing the 'Add co-creator' button",
         'Role': '',
         'Name': '',
         'Affiliation': '',
-        'Email Address': '',
+        'Email Address': '', # Becomes EmailAddress
         'DOI': "(Optional) DOI of an associated publication."
     },
     'Instrument': {

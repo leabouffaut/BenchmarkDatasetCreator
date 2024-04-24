@@ -279,8 +279,8 @@ if st.session_state.stage >= 13:
 
     # 12) Write the metadata
     metadata_save = {
-        'Original data': original_data_dictionary,
-        'Benchmarked data': export_settings
+        'Original data': cm.transform_original_metadata_to_ASA_standard(original_data_dictionary),
+        'Benchmarked data': cm.transform_export_metadata_to_ASA_standard(export_settings)
     }
     with open(export_folder_dictionary['Metadata file'], 'w') as fp:
         json.dump(metadata_save, fp, indent=4)

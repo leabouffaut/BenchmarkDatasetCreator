@@ -318,7 +318,7 @@ else:
             'Annotation protocol': ''
         }
 
-        original_data_dictionary['Target signals'] = {
+        original_data_dictionary['Annotations']['Target signals'] = {
             'Kind': annotation_questions_col.radio(
                 'Annotation type',
                 authorized_annotations,
@@ -382,7 +382,7 @@ else:
         # Optional field for annotation protocol
 
         # Free field for annotation protocol
-        original_data_dictionary['Annotation protocol'] = \
+        original_data_dictionary['Annotations']['Annotation protocol'] = \
             annotation_questions_col.text_area(
                 'Annotation protocol',
                 placeholder=hd.metadata['Annotations']['Annotation protocol'],
@@ -394,7 +394,7 @@ else:
     # 7) Submit button to write JSON file
     if st.session_state.stage >= 8:
         metadata_save = {
-            'Original data': original_data_dictionary,
+            'Original data': cm.transform_original_metadata_to_ASA_standard(original_data_dictionary),
             'Benchmarked data': ''
         }
         with open(export_folder_dictionary['Metadata file'], 'w') as fp:

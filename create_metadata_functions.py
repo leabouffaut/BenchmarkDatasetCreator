@@ -3,6 +3,7 @@ import datetime as dt
 import timezonefinder, pytz
 import json
 
+
 def set_state(i):
     st.session_state.stage = i
 
@@ -343,3 +344,78 @@ def test_json_fields(json_data):
                     raise ValueError("'Lon.' in 'Position' must have precision of up to 6 decimal places")
 
     return missing_data
+
+
+def transform_original_metadata_to_ASA_standard(original_metadata_dict):
+    original_metadata_dict["Project ID"] = original_metadata_dict.pop("ProjectId")
+    original_metadata_dict["Deployment ID"] = original_metadata_dict.pop("DeploymentId")
+
+    original_metadata_dict["Data stewardship"] = original_metadata_dict.pop("DataStewardship")
+    original_metadata_dict["DataStewardship"]["Email Address"] = original_metadata_dict["EmailAddress"].pop(
+        "EmailAddress")
+
+    original_metadata_dict['Deployment']["Height/depth (m)"] = original_metadata_dict['Deployment'].pop(
+        "ElevationInstrument_m")
+    original_metadata_dict['Deployment']["Terrain elevation/water depth (m)"] = original_metadata_dict[
+        'Deployment'].pop("Elevation_m")
+
+    original_metadata_dict["Sampling details"] = original_metadata_dict.pop("SamplingDetails")
+    original_metadata_dict["SamplingDetails"]["Time"] = original_metadata_dict["SamplingDetails"]["Timestamp"]
+    original_metadata_dict["SamplingDetails"]["Timestamp"]["UTC Start"] = \
+        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("StartUTC")
+    original_metadata_dict["SamplingDetails"]["Timestamp"]["UTC End"] = \
+        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("EndUTC")
+    original_metadata_dict["SamplingDetails"]["Timestamp"]["Local Start"] = \
+        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("StartLocal")
+    original_metadata_dict["SamplingDetails"]["Timestamp"]["Local End"] = \
+        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("EndLocal")
+
+    original_metadata_dict["SamplingDetails"]["Digital sampling"] = \
+        original_metadata_dict["SamplingDetails"].pop("DigitalSampling")
+    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["Sample rate (kHz)"] = \
+        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("SampleRate_kHz")
+    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["Sample Bits"] = \
+        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("SampleBits")
+    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["Data Modifications"] = \
+        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("DataModifications")
+
+    original_metadata_dict["Annotations"]["Target signals"] = \
+        original_metadata_dict["Annotations"].pop("TargetSignals")
+    original_metadata_dict["Annotations"]["Non-target signals"] = \
+        original_metadata_dict["Annotations"].pop("NonTargetSignals")
+    original_metadata_dict["Annotations"]["Annotation protocol"] = \
+        original_metadata_dict["Annotations"].pop("AnnotationProtocol")
+
+    return original_metadata_dict
+
+
+def transform_export_metadata_to_ASA_standard(export_metadata_dict):
+    export_metadata_dict["Project ID"] = export_metadata_dict.pop("ProjectId")
+    export_metadata_dict["Deployment ID"] = export_metadata_dict.pop("DeploymentId")
+
+    export_metadata_dict["Digital sampling"] = export_metadata_dict.pop("DigitalSampling")
+    export_metadata_dict["DigitalSampling"]["Audio duration (s)"] = \
+        export_metadata_dict["DigitalSampling"].pop("NewAudioDuration_s")
+    export_metadata_dict["DigitalSampling"]["fs (Hz)"] = export_metadata_dict["DigitalSampling"].pop(
+        "NewSampleRate_kHz")
+    export_metadata_dict["DigitalSampling"]["Bit depth"] = export_metadata_dict["DigitalSampling"].pop(
+        "NewSampleBits")
+    export_metadata_dict["Selections"]["Export label"] = export_metadata_dict["Selections"].pop(
+        "ExportLabel")
+    export_metadata_dict["Selections"]["Split export selections"] = export_metadata_dict["Selections"].pop(
+        "SplitExportSelections_bool_s")
+
+    export_metadata_dict["Export folders"] = export_metadata_dict.pop("ExportFolders")
+    export_metadata_dict["ExportFolders"]["Export folder"] = export_metadata_dict["ExportFolders"].pop("ExportFolder")
+    export_metadata_dict["ExportFolders"]["Audio export folder"] = \
+        export_metadata_dict["ExportFolders"].pop("AudioExportFolder")
+    export_metadata_dict["ExportFolders"]["Annotation export folder"] = \
+        export_metadata_dict["ExportFolders"].pop("AnnotationExportFolder")
+    export_metadata_dict["ExportFolders"]["Metadata folder"] = \
+        export_metadata_dict["ExportFolders"].pop("MetadataFolder")
+    export_metadata_dict["ExportFolders"]["Metadata file"] = \
+        export_metadata_dict["ExportFolders"].pop("MetadataFileJSON")
+    export_metadata_dict["ExportFolders"]["Annotation CSV file"] = \
+        export_metadata_dict["ExportFolders"].pop("AnnotationFileCSV")
+    export_metadata_dict["ExportFolders"]["Audio-Seltab Map CSV file"] = \
+        export_metadata_dict["ExportFolders"].pop("Audio-SeltabMapFileCSV")
