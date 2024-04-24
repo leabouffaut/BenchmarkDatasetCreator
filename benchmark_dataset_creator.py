@@ -146,19 +146,36 @@ def check_export_settings(export_settings):
         - ValueError: If any required field in the wanted_fields_list is missing in the export_settings 
         dictionary.
     """
-    wanted_fields_list = ['Project ID', 'Deployment ID', 'Audio duration (s)', 'fs (Hz)', 'Bit depth', 'Export label',
-                          'Split export selections', 'Export folder']
+    wanted_fields_dict = {
+        'Project ID': None,
+        'Deployment ID': None,
+        'Digital sampling': {
+            'Audio duration (s)': None,
+            'fs (Hz)': None,
+            'Bit depth': None
+        },
+        'Selections': {
+            'Export label': None,
+            'Split export selections': None
+        },
+        'Export folders': {
+            'Export folder': None
+        }
+    }
+
     missing = []
 
     # Go through the wanted fields
-    for wf in wanted_fields_list:
-
-        # Test if the wanted field is not in the export_settings dictionary, if true add it to the 'missing' list
-        if wf not in export_settings:
-            missing.append(wf)
+    for field, value in wanted_fields_dict.items():
+        if field not in export_settings:
+            missing.append(field)
+        elif isinstance(value, dict):  # If the value is a dictionary, check its subfields
+            for subfield in value:
+                if subfield not in export_settings[field]:
+                    missing.append(f"{field} -> {subfield}")
 
     if missing:
-        raise ValueError(f"Error: Missing field in export_settings: {missing}")
+        raise ValueError(f"Error: Missing field(s) in export_settings: {missing}")
     else:
         print(f"All required fields are filled")
 
