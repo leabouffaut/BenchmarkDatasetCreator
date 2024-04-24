@@ -347,75 +347,99 @@ def test_json_fields(json_data):
 
 
 def transform_original_metadata_to_ASA_standard(original_metadata_dict):
-    original_metadata_dict["Project ID"] = original_metadata_dict.pop("ProjectId")
-    original_metadata_dict["Deployment ID"] = original_metadata_dict.pop("DeploymentId")
+    """
+        Transforms original metadata dictionary to the ASA (Acoustical Society of America) standard format.
 
-    original_metadata_dict["Data stewardship"] = original_metadata_dict.pop("DataStewardship")
-    original_metadata_dict["DataStewardship"]["Email Address"] = original_metadata_dict["EmailAddress"].pop(
-        "EmailAddress")
+        Inputs:
+            - original_metadata_dict: Original metadata dictionary to be transformed.
 
-    original_metadata_dict['Deployment']["Height/depth (m)"] = original_metadata_dict['Deployment'].pop(
-        "ElevationInstrument_m")
-    original_metadata_dict['Deployment']["Terrain elevation/water depth (m)"] = original_metadata_dict[
-        'Deployment'].pop("Elevation_m")
+        Returns:
+            - Transformed metadata dictionary in the ASA standard.
+    """
 
-    original_metadata_dict["Sampling details"] = original_metadata_dict.pop("SamplingDetails")
-    original_metadata_dict["SamplingDetails"]["Time"] = original_metadata_dict["SamplingDetails"]["Timestamp"]
-    original_metadata_dict["SamplingDetails"]["Timestamp"]["UTC Start"] = \
-        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("StartUTC")
-    original_metadata_dict["SamplingDetails"]["Timestamp"]["UTC End"] = \
-        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("EndUTC")
-    original_metadata_dict["SamplingDetails"]["Timestamp"]["Local Start"] = \
-        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("StartLocal")
-    original_metadata_dict["SamplingDetails"]["Timestamp"]["Local End"] = \
-        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("EndLocal")
+    original_metadata_dict["ProjectId"] = original_metadata_dict.pop("Project ID")
+    original_metadata_dict["DeploymentId"] = original_metadata_dict.pop("Deployment ID")
 
-    original_metadata_dict["SamplingDetails"]["Digital sampling"] = \
-        original_metadata_dict["SamplingDetails"].pop("DigitalSampling")
-    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["Sample rate (kHz)"] = \
-        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("SampleRate_kHz")
-    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["Sample Bits"] = \
-        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("SampleBits")
-    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["Data Modifications"] = \
-        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("DataModifications")
 
-    original_metadata_dict["Annotations"]["Target signals"] = \
-        original_metadata_dict["Annotations"].pop("TargetSignals")
-    original_metadata_dict["Annotations"]["Non-target signals"] = \
-        original_metadata_dict["Annotations"].pop("NonTargetSignals")
-    original_metadata_dict["Annotations"]["Annotation protocol"] = \
-        original_metadata_dict["Annotations"].pop("AnnotationProtocol")
+    print(original_metadata_dict["DataStewardship"])
+    print(original_metadata_dict["DataStewardship"].key["Email Address"])
+    original_metadata_dict["DataStewardship"]["EmailAddress"] = original_metadata_dict["DataStewardship"].pop(
+        "Email Address")
+    original_metadata_dict["DataStewardship"] = original_metadata_dict.pop("Data stewardship")
+
+    original_metadata_dict['Deployment']["ElevationInstrument_m"] = original_metadata_dict['Deployment'].pop(
+        "Height/depth (m)")
+    original_metadata_dict['Deployment']["Elevation_m"] = original_metadata_dict[
+        'Deployment'].pop("Terrain elevation/water depth (m)")
+
+    original_metadata_dict["SamplingDetails"] = original_metadata_dict.pop("Sampling details")
+    original_metadata_dict["SamplingDetails"]["Timestamp"] = original_metadata_dict["SamplingDetails"].pop("Time")
+    original_metadata_dict["SamplingDetails"]["Timestamp"]["StartUTC"] = \
+        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("UTC Start")
+    original_metadata_dict["SamplingDetails"]["Timestamp"]["EndUTC"] = \
+        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("UTC End")
+    original_metadata_dict["SamplingDetails"]["Timestamp"]["StartLocal"] = \
+        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("Local Start")
+    original_metadata_dict["SamplingDetails"]["Timestamp"]["EndLocal"] = \
+        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("Local End")
+
+    original_metadata_dict["SamplingDetails"]["DigitalSampling"] = original_metadata_dict["SamplingDetails"].pop(
+        "Digital sampling")
+    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["SampleRate_kHz"] = \
+        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("Sample rate (kHz)")
+    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["SampleBits"] = \
+        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("Sample Bits")
+    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["DataModifications"] = \
+        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("Data Modifications")
+
+    original_metadata_dict["Annotations"]["TargetSignals"] = original_metadata_dict["Annotations"].pop("Target signals")
+    original_metadata_dict["Annotations"]["NonTargetSignals"] = original_metadata_dict["Annotations"].pop(
+        "Non-target signals")
+    original_metadata_dict["Annotations"]["AnnotationProtocol"] = original_metadata_dict["Annotations"].pop(
+        "Annotation protocol")
 
     return original_metadata_dict
 
 
 def transform_export_metadata_to_ASA_standard(export_metadata_dict):
-    export_metadata_dict["Project ID"] = export_metadata_dict.pop("ProjectId")
-    export_metadata_dict["Deployment ID"] = export_metadata_dict.pop("DeploymentId")
+    """
+        Transforms original metadata dictionary to the ASA (Acoustical Society of America) standard format.
 
-    export_metadata_dict["Digital sampling"] = export_metadata_dict.pop("DigitalSampling")
-    export_metadata_dict["DigitalSampling"]["Audio duration (s)"] = \
-        export_metadata_dict["DigitalSampling"].pop("NewAudioDuration_s")
-    export_metadata_dict["DigitalSampling"]["fs (Hz)"] = export_metadata_dict["DigitalSampling"].pop(
-        "NewSampleRate_kHz")
-    export_metadata_dict["DigitalSampling"]["Bit depth"] = export_metadata_dict["DigitalSampling"].pop(
-        "NewSampleBits")
-    export_metadata_dict["Selections"]["Export label"] = export_metadata_dict["Selections"].pop(
-        "ExportLabel")
-    export_metadata_dict["Selections"]["Split export selections"] = export_metadata_dict["Selections"].pop(
-        "SplitExportSelections_bool_s")
+        Inputs:
+            - export_metadata_dict: Original metadata dictionary to be transformed.
 
-    export_metadata_dict["Export folders"] = export_metadata_dict.pop("ExportFolders")
-    export_metadata_dict["ExportFolders"]["Export folder"] = export_metadata_dict["ExportFolders"].pop("ExportFolder")
-    export_metadata_dict["ExportFolders"]["Audio export folder"] = \
-        export_metadata_dict["ExportFolders"].pop("AudioExportFolder")
-    export_metadata_dict["ExportFolders"]["Annotation export folder"] = \
-        export_metadata_dict["ExportFolders"].pop("AnnotationExportFolder")
-    export_metadata_dict["ExportFolders"]["Metadata folder"] = \
-        export_metadata_dict["ExportFolders"].pop("MetadataFolder")
-    export_metadata_dict["ExportFolders"]["Metadata file"] = \
-        export_metadata_dict["ExportFolders"].pop("MetadataFileJSON")
-    export_metadata_dict["ExportFolders"]["Annotation CSV file"] = \
-        export_metadata_dict["ExportFolders"].pop("AnnotationFileCSV")
-    export_metadata_dict["ExportFolders"]["Audio-Seltab Map CSV file"] = \
-        export_metadata_dict["ExportFolders"].pop("Audio-SeltabMapFileCSV")
+        Returns:
+            - Transformed metadata dictionary in the ASA standard.
+    """
+
+    export_metadata_dict["ProjectId"] = export_metadata_dict.pop("Project ID")
+    export_metadata_dict["DeploymentId"] = export_metadata_dict.pop("Deployment ID")
+
+    export_metadata_dict["DigitalSampling"] = export_metadata_dict.pop("Digital sampling")
+    export_metadata_dict["DigitalSampling"]["NewAudioDuration_s"] = export_metadata_dict["DigitalSampling"].pop(
+        "Audio duration (s)")
+    export_metadata_dict["DigitalSampling"]["NewSampleRate_kHz"] = export_metadata_dict["DigitalSampling"].pop(
+        "fs (Hz)")
+    export_metadata_dict["DigitalSampling"]["NewSampleBits"] = export_metadata_dict["DigitalSampling"].pop("Bit depth")
+
+    export_metadata_dict["Selections"] = export_metadata_dict.pop("Selections")
+    export_metadata_dict["Selections"]["ExportLabel"] = export_metadata_dict["Selections"].pop("Export label")
+    export_metadata_dict["Selections"]["SplitExportSelections_bool_s"] = export_metadata_dict["Selections"].pop(
+        "Split export selections")
+
+    export_metadata_dict["ExportFolders"] = export_metadata_dict.pop("Export folders")
+    export_metadata_dict["ExportFolders"]["ExportFolder"] = export_metadata_dict["ExportFolders"].pop("Export folder")
+    export_metadata_dict["ExportFolders"]["AudioExportFolder"] = export_metadata_dict["ExportFolders"].pop(
+        "Audio export folder")
+    export_metadata_dict["ExportFolders"]["AnnotationExportFolder"] = export_metadata_dict["ExportFolders"].pop(
+        "Annotation export folder")
+    export_metadata_dict["ExportFolders"]["MetadataFolder"] = export_metadata_dict["ExportFolders"].pop(
+        "Metadata folder")
+    export_metadata_dict["ExportFolders"]["MetadataFileJSON"] = export_metadata_dict["ExportFolders"].pop(
+        "Metadata file")
+    export_metadata_dict["ExportFolders"]["AnnotationFileCSV"] = export_metadata_dict["ExportFolders"].pop(
+        "Annotation CSV file")
+    export_metadata_dict["ExportFolders"]["Audio-SeltabMapFileCSV"] = export_metadata_dict["ExportFolders"].pop(
+        "Audio-Seltab Map CSV file")
+
+    return export_metadata_dict
