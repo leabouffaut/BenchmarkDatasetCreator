@@ -1,9 +1,11 @@
 import streamlit as st
 import datetime as dt
 import timezonefinder, pytz
+import json
 
 def set_state(i):
     st.session_state.stage = i
+
 
 # Function definitions
 def get_date_time(label, data_dictionary):
@@ -183,3 +185,161 @@ def display_input_row(index, authorized_roles):
     name_col.text_input('Name', key=f'name_{index}')
     affiliation_col.text_input('Affiliation', key=f'affiliation_{index}')
     email_col.text_input('Email Address', key=f'email_{index}')
+
+
+def test_json_fields(json_data):
+    """
+    Tests whether a JSON file has the specified fields and validates their formats.
+
+    Inputs:
+        - json_data: A dictionary representing the JSON data.
+
+    Raises:
+        - ValueError: If any required field is missing in the JSON data or if any field has an invalid format.
+    """
+    missing_data = False
+
+    with open(json_data, "r") as file:
+        json_data = json.load(file)
+
+    print(json_data)
+
+    required_fields = [
+        "Original data",
+        "Benchmarked data"
+    ]
+
+    for field in required_fields:
+        if field not in json_data:
+            missing_data = True
+            raise ValueError(f"Missing field: {field}")
+
+    if "Original data" in json_data:
+        original_data = json_data["Original data"]
+        original_data_fields = [
+            "Project ID",
+            "Deployment ID",
+            "Data stewardship",
+            "Instrument",
+            "Deployment",
+            "Sampling details",
+            "Annotations",
+            "Target signals",
+            "Annotation protocol"
+        ]
+
+        for field in original_data_fields:
+            if field not in original_data:
+                missing_data = True
+                raise ValueError(f"Missing field in 'Original data': {field}")
+
+        if "Sampling details" in original_data:
+            sampling_details = original_data["Sampling details"]
+            sampling_details_fields = [
+                "Time",
+                "Digital sampling"
+            ]
+
+            for field in sampling_details_fields:
+                if field not in sampling_details:
+                    missing_data = True
+                    raise ValueError(f"Missing field in 'Sampling details': {field}")
+
+            if "Time" in sampling_details:
+                time = sampling_details["Time"]
+                time_fields = [
+                    "UTC Start",
+                    "UTC End",
+                    "Local Start",
+                    "Local End"
+                ]
+
+                for field in time_fields:
+                    if field not in time:
+                        missing_data = True
+                        raise ValueError(f"Missing field in 'Time': {field}")
+
+                    # Validate time format for UTC and Local timestamps
+                    if field.startswith("UTC") or field.startswith("Local"):
+                        try:
+                            dt.datetime.strptime(time[field], "%Y-%m-%dT%H:%M:%SZ")
+                        except ValueError:
+                            missing_data = True
+                            raise ValueError(f"Invalid format for '{field}': {time[field]}")
+
+            if "Digital sampling" in sampling_details:
+                digital_sampling = sampling_details["Digital sampling"]
+                digital_sampling_fields = [
+                    "Sample rate (kHz)",
+                    "Sample Bits",
+                    "Clipping",
+                    "Data Modifications"
+                ]
+
+                for field in digital_sampling_fields:
+                    if field not in digital_sampling:
+                        missing_data = True
+                        raise ValueError(f"Missing field in 'Digital sampling': {field}")
+
+                    # Validate sample rate
+                    if field == "Sample rate (kHz)" and not isinstance(digital_sampling[field], (int, float)):
+                        missing_data = True
+                        raise ValueError(f"Invalid format for 'Sample rate (kHz)': {digital_sampling[field]}")
+
+                    # Validate sample bits
+                    if field == "Sample Bits" and digital_sampling[field] not in [8, 16, 24]:
+                        missing_data = True
+                        raise ValueError(f"Invalid value for 'Sample Bits': {digital_sampling[field]}")
+
+                    # Validate clipping
+                    if field == "Clipping" and digital_sampling[field] not in ["Yes", "No"]:
+                        missing_data = True
+                        raise ValueError(f"Invalid value for 'Clipping': {digital_sampling[field]}")
+
+        if "Data stewardship" in original_data:
+            data_stewardship = original_data["Data stewardship"]
+            for person in data_stewardship:
+                required_person_fields = ["Role", "Name", "Affiliation", "Email Address"]
+                for person_field in required_person_fields:
+                    if person_field not in person:
+                        missing_data = True
+                        raise ValueError(f"Missing field in 'Data stewardship' for person: {person_field}")
+
+        if "Instrument" in original_data:
+            instrument = original_data["Instrument"]
+            required_instrument_fields = ["Type", "Settings"]
+            for field in required_instrument_fields:
+                if field not in instrument:
+                    missing_data = True
+                    raise ValueError(f"Missing field in 'Instrument': {field}")
+
+        if "Deployment" in original_data:
+            deployment = original_data["Deployment"]
+            required_deployment_fields = ["Position", "Height/depth (m)", "Terrain elevation/water depth (m)"]
+            for field in required_deployment_fields:
+                if field not in deployment:
+                    missing_data = True
+                    raise ValueError(f"Missing field in 'Deployment': {field}")
+
+            if "Position" in deployment:
+                position = deployment["Position"]
+                if "Lat." not in position or "Lon." not in position:
+                    missing_data = True
+                    raise ValueError("Missing 'Lat.' or 'Lon.' in 'Position'")
+                if not isinstance(position["Lat."], float) or not isinstance(position["Lon."], float):
+                    missing_data = True
+                    raise ValueError("'Lat.' and 'Lon.' in 'Position' must be floats")
+                if not (-90.0 <= position["Lat."] <= 90.0):
+                    missing_data = True
+                    raise ValueError("'Lat.' in 'Position' must be between -90.0 and 90.0")
+                if not (-180.0 <= position["Lon."] <= 180.0):
+                    missing_data = True
+                    raise ValueError("'Lon.' in 'Position' must be between -180.0 and 180.0")
+                if not round(position["Lat."], 6) == position["Lat."]:
+                    missing_data = True
+                    raise ValueError("'Lat.' in 'Position' must have precision of up to 6 decimal places")
+                if not round(position["Lon."], 6) == position["Lon."]:
+                    missing_data = True
+                    raise ValueError("'Lon.' in 'Position' must have precision of up to 6 decimal places")
+
+    return missing_data

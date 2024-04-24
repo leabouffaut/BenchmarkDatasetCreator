@@ -14,3 +14,5 @@ st.title('Benchmark Dataset Creator')
 #print(os.path.exists('.'+os.sep+ os.path.join('docs', 'illustrations', '‎method_schematicV2.png')))
 #st.image('.' + os.sep + os.path.join('docs', 'illustrations', '‎method_schematicV2.png'),
 #         channels="RGB", output_format="auto")
+
+st.write('Welcome to the Benchmark Dataset Creator')

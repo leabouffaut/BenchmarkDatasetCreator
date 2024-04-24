@@ -1,8 +1,10 @@
 metadata = {
-    'Project ID': "The name of your project. This entry will be used to  keep track of the origin of the data, "
-                  "as a part of the folder architecture and file naming. Please do not end this entry by / or \ and "
-                  "avoid spaces",
-    'Deployment ID': "A number used to help distinguish groups of deployments",
+    'Project ID': # Becomes ProjectId in the standard
+        "The name of your project. This entry will be used to  keep track of the origin of the data, "
+        "as a part of the folder architecture and file naming. Please do not end this entry by / or \ and "
+        "avoid spaces",
+    'Deployment ID': # Becomes DeploymentId in the standard
+        "A number used to help distinguish groups of deployments",
     'Data stewardship': {
         'General': "Information and contact of the people/institutions/groups that contributed to this dataset. "
                    "Show and fill the fields of entry by pushing the 'Add co-creator' button",
@@ -28,9 +30,10 @@ metadata = {
             'Lat.': '',
             'Lon.': '',
         },
-        'Height/depth (m)': '<b>Terrestrial</b>: recorder height is reported relative to ground level.'
-                            '<b>Aquatic/Marine</b>: recorder depths are entered relative to the surface',
-        'Terrain elevation/water depth (m)':
+        'Height/depth (m)': # becomes ElevationInstrument_m to follow the standard
+            '<b>Terrestrial</b>: recorder height is reported relative to ground level.'
+            '<b>Aquatic/Marine</b>: recorder depths are entered relative to the surface',
+        'Terrain elevation/water depth (m)': # becomes Elevation_m to follow the standard
             'Terrain elevation and water depth relative to sea level reported at the '
             'position of the recorder',
         'Env. context': '(Optional) Description of the environmental context , e.g., vegetation, weather, ocean-bottom '
@@ -38,17 +41,19 @@ metadata = {
     },
     'Sampling details': {
         'General': 'Information on the recording sampling. Times are entered either in local time or UTC.',
-        'Time': {
+        'Time': { # Becomes Timestamp in the standard
             'UTC Start': '',
             'UTC End': '',
             'Local Start': '',
             'Local End': '',
         },
         'Digital sampling': {
-            'Sample rate (kHz)': 'Recordings sampling frequency',
-            'Sample Bits': 'Select the bit depth of the original data. The bit depth determines the number of possible '
-                           'amplitude values we can record for each audio sample; for SWIFT units, it is set to 16 bits and '
-                           'for Rockhopper to 24 bits.',
+            'Sample rate (kHz)': # Becomes SampleRate_kHz in the standard
+                'Recordings sampling frequency',
+            'Sample Bits': # Becomes SampleBits in the standard
+                'Select the bit depth of the original data. The bit depth determines the number of possible '
+                'amplitude values we can record for each audio sample; for SWIFT units, it is set to 16 bits and '
+                'for Rockhopper to 24 bits.',
             'Clipping': 'Where there any clipping in the data? Clipping clipping is a form of waveform distortion that '
                         'occurs when an amplifier is pushed beyond its maximum limit (e.g., the source signal is too '
                         'loud), pushing it to overdrive. In that case, the output voltage is pushed to its maximum value.',

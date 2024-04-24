@@ -40,12 +40,12 @@ else:
 
     # Show the info on the sidebar
     st.sidebar.subheader('Project settings')
+    st.sidebar.write('Export folder')
+    st.sidebar.success(export_folder_dictionary['Export folder'])
     st.sidebar.write('Project ID')
     st.sidebar.success(export_folder_dictionary['Project ID'])
     st.sidebar.write('Deployment ID')
     st.sidebar.success(export_folder_dictionary['Deployment ID'])
-    st.sidebar.write('Export folder')
-    st.sidebar.success(export_folder_dictionary['Export folder'])
     st.sidebar.write('Metadata file')
     st.sidebar.success(export_folder_dictionary['Metadata file'])
 
@@ -105,14 +105,14 @@ if st.session_state.stage >= 9:
                 'Export label',
                 value="Tags",
                 type="default",
-                help=hd.export['Export label'],
+                help=hd.export['Selections']['Export label'],
                 label_visibility="visible"),
 
         'Split export selections':
             st.toggle(
                 'Split export selections',
                 value=False,
-                help=hd.export['Split export selections']['General'],
+                help=hd.export['Selections']['Split export selections']['General'],
                 label_visibility="visible")}
 
     # User-chosen split output
@@ -135,13 +135,6 @@ if st.session_state.stage >= 9:
         export_settings_user_input['Split export selections'] = [
             export_settings_user_input['Split export selections'], 0]
 
-    export_settings_user_input['Export folder'] = \
-        st.text_input(
-            'Export folder',
-            value="e.g., benchmark_data",
-            type="default",
-            help=hd.export['Export folder'],
-            label_visibility="visible")
 
     st.button('Done', help=None, on_click=cm.set_state, args=[10])
 
@@ -151,6 +144,14 @@ if st.session_state.stage >= 10:
     export_settings = {
         'Project ID': export_folder_dictionary['Project ID'],
         'Deployment ID': export_folder_dictionary['Deployment ID'],
+        'Method': {
+            'Software': 'Dataset and metadata created using the Benchmark Dataset Creator',
+            'url': 'https://github.com/leabouffaut/BenchmarkDatasetCreator',
+            'Author': 'Léa Bouffaut, Ph.D.',
+            'Institution': 'K. Lisa Yang Center for Conservation Bioacoustics, Cornell University',
+            'Release': 'dev',
+            'Date': 'April 2024'
+        },
         'Digital sampling': {
             'Audio duration (s)': export_settings_user_input['Audio duration (s)'],
         },
@@ -163,7 +164,7 @@ if st.session_state.stage >= 10:
         'Export folders': {
             'Export folder': export_folder_dictionary['Export folder'],
             'Audio export folder': export_folder_dictionary['Audio export folder'],
-            'Annotation export folder': export_folder_dictionary['Audio export folder'],
+            'Annotation export folder': export_folder_dictionary['Annotation export folder'],
             'Metadata folder': export_folder_dictionary['Metadata folder'],
             'Metadata file': export_folder_dictionary['Metadata file'],
             'Annotation CSV file': export_folder_dictionary['Annotation CSV file'],
@@ -262,7 +263,7 @@ if st.session_state.stage >= 11:
     col6.write(hd.export['Selections']['Label editor']['Label list'])
 
     # Show button for creating Benchmark dataset
-    col6.button('Save', help=None, on_click=cm.set_state, args=[12])
+    col6.button('Continue', help=None, on_click=cm.set_state, args=[12])
 
 if st.session_state.stage >= 12:
     # Show button for creating Benchmark dataset
@@ -276,7 +277,15 @@ if st.session_state.stage >= 13:
     # Update the selection table
     selection_table_df_updated = bc.update_labels(selection_table_df, new_labels_dict, label_key)
 
-    # 12) Create the dataset
+    # 12) Write the metadata
+    metadata_save = {
+        'Original data': original_data_dictionary,
+        'Benchmarked data': export_settings
+    }
+    with open(export_folder_dictionary['Metadata file'], 'w') as fp:
+        json.dump(metadata_save, fp, indent=4)
+
+    # 13) Create the dataset
     with st.spinner("Creating the Benchmark dataset..."):
         bc.benchmark_creator(selection_table_df_updated, export_settings, label_key)
 

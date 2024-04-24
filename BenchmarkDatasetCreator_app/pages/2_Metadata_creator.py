@@ -1,10 +1,8 @@
 # Streamlit app page 2, Metadata input
-#
 # This page is associated with a series of functions, in create_metadata_functions.py
 # The text help for streamlit user inputs is integrated in help_dictionary.py in the metadata dict
-#
-# >> This page creates the original_data_dictionary
-# saved in st.session_state.original_data_dictionary
+
+# Creates original_data_dictionary
 
 # Imports
 import json

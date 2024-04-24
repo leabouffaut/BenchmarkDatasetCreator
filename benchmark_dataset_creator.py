@@ -85,7 +85,6 @@ def path_print(start_path): # TODO moved to create_folders_functions -- delete
             print('{}{}'.format(sub_indent, f))
 
 
-
 def check_export_settings(export_settings):
     """
     Checks the completeness of export settings provided by the user.
@@ -163,7 +162,7 @@ def get_bitdepth(bit_depth):
     Get the bit depth based on user-input export settings. Only FLAC files are supported.
 
     Inputs:
-        - export_settings: Dictionary containing export settings, including parameters such as 'Bit depth'.
+        - bit_depth: 'Bit depth' integer.
 
     Outputs:
         - bit_depth: The corresponding bit depth for the export settings.
@@ -203,7 +202,7 @@ def check_bitdepth(bit_depth):
     Displays an error message if the value is not supported.
     
     Inputs:
-        - export_settings: Dictionary containing export settings.
+        - bit_depth: 'Bit depth' integer.
     Output:
         - Printed text indicating if the bit depth is not supported
     """
@@ -428,12 +427,12 @@ def update_labels(selection_table_df, labels_dict, label_key):
 
 def save_audioclip(audiofile, export_settings, export_filename, start_clip, bit_depth, channel):
     # Test if the export audio file already exists otherwise, create it
-    if not os.path.exists(os.path.join(export_settings['Audio export folder'], export_filename + '.flac')):
+    if not os.path.exists(os.path.join(export_settings['Export folders']['Audio export folder'], export_filename + '.flac')):
 
         # Load and resample the the audio
         x_clip, fs = librosa.load(audiofile, offset=start_clip,
-                                  duration=export_settings['Audio duration (s)'],
-                                  sr=export_settings['fs (Hz)'], mono=False, res_type='soxr_vhq')
+                                  duration=export_settings['Digital sampling']['Audio duration (s)'],
+                                  sr=export_settings['Digital sampling']['fs (Hz)'], mono=False, res_type='soxr_vhq')
         # Test if x is multi-channel
         nb_ch = x_clip.ndim
         # Keep the wanted channel
@@ -441,7 +440,7 @@ def save_audioclip(audiofile, export_settings, export_filename, start_clip, bit_
             x_clip = x_clip[channel, :]
 
         # Save clip
-        sf.write(os.path.join(export_settings['Audio export folder'], export_filename + '.flac'),
+        sf.write(os.path.join(export_settings['Export folders']['Audio export folder'], export_filename + '.flac'),
                  x_clip, fs, bit_depth)
 
 
@@ -597,7 +596,7 @@ def exports(export_settings, selection_table_af_df, save_sel_dict):
 
     # Write in the golbal csv file (.csv)
     write_annotation_csv(export_settings['Export folders']['Annotation CSV file'],
-                         selection, export_label=export_settings['Selection']['Export label'])
+                         selection, export_label=export_settings['Selections']['Export label'])
 
     # Write in the file association (.csv)
     map_audio_selection(export_settings['Export folders']['Audio-Seltab Map CSV file'],
@@ -744,7 +743,7 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
     unique_audiofiles = selection_table_df['Begin Path'].unique()
 
     # Get the bit depth
-    bit_depth = get_bitdepth(export_settings['Digital sampling':]['Bit depth'])
+    bit_depth = get_bitdepth(export_settings['Digital sampling']['Bit depth'])
 
     # Get total number of clips
     tot_clips = 0

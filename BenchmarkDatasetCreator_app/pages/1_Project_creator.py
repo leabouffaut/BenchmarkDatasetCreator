@@ -6,13 +6,16 @@
 #
 # >> This page creates the export_folder_dictionary
 # saved in st.session_state.export_folder_dictionary
+import sys
+import os
 
 import streamlit as st
+import shutil
+
+sys.path.insert(1, '.' + os.sep)
 import help_dictionary as hd
 import create_metadata_functions as cm
 import create_folders_functions as cf
-import os
-import shutil
 
 # Page title (tab and page), Header
 st.set_page_config(
@@ -36,12 +39,20 @@ if st.session_state.stage >= 0:
 
     # Create the dictionary to store the information on the export folders
     export_folder_dictionary = {
+        'Export folder': st.text_input(
+            'Export folder',
+            value="e.g., benchmark_data",
+            type="default",
+            help=hd.folder['Export folder'],
+            label_visibility="visible"),
+
         'Project ID': st.text_input(
             'Project ID',
             value="e.g., 2013_UnivMD_Maryland_71485",
             type="default",
             help=hd.folder['Project ID'],
             label_visibility="visible"),
+
         'Deployment ID': "{:02d}".format(st.number_input(
             'Deployment ID',
             value=int(1.0),
@@ -50,14 +61,7 @@ if st.session_state.stage >= 0:
             format='%02d',
             step=1,
             help=hd.folder['Deployment ID'],
-            label_visibility="visible")),
-
-        'Export folder': st.text_input(
-            'Export folder',
-            value="e.g., benchmark_data",
-            type="default",
-            help=hd.folder['Export folder'],
-            label_visibility="visible")
+            label_visibility="visible"))
     }
 
     st.button('Create Export folders', on_click=cm.set_state, args=[1])
@@ -151,12 +155,12 @@ if st.session_state.stage >= 1:
 if st.session_state.stage >= 2:
     # Show the info on the sidebar
     st.sidebar.subheader('Project settings')
+    st.sidebar.write('Export folder')
+    st.sidebar.success(export_folder_dictionary['Export folder'])
     st.sidebar.write('Project ID')
     st.sidebar.success(export_folder_dictionary['Project ID'])
     st.sidebar.write('Deployment ID')
     st.sidebar.success(export_folder_dictionary['Deployment ID'])
-    st.sidebar.write('Export folder')
-    st.sidebar.success(export_folder_dictionary['Export folder'])
 
     # Save
     st.session_state.export_folder_dictionary = export_folder_dictionary
@@ -165,3 +169,21 @@ if st.session_state.stage >= 2:
     st.session_state.stage = 3
     link_to_metadata = "pages" + os.sep + "2_Metadata_creator.py"
     st.page_link(link_to_metadata, label=":green[Continue to Metadata Creator]", icon="➡️")
+
+    # Option for people to
+    json_data = st.checkbox('I already have a metadata file in the correct format')
+    if json_data:
+        st.write('In construction, please use the Metadata Creator')
+        #st.text_input('Path to metadata JSON file')
+        #
+        #if st.button('Verify metadata', help=None):
+        #
+        #    missing_data = cm.test_json_fields(json_data)
+        #    # TODO implement a test to check if all metadata fields are present
+        #    if missing_data:  # Call this function with your JSON data
+        #        st.write('JSON file does not contain all the necessary fields, please use the Metadata Creator')
+        #    else:
+        #        # Activate next session state and get link to data creator
+        #        st.session_state.stage = 9
+        #        link_to_dataset = "pages" + os.sep + "3_Dataset_creator.py"
+        #        st.page_link(link_to_dataset, label=":green[Continue to Dataset Creator]", icon="➡️")
