@@ -203,7 +203,7 @@ if st.session_state.stage >= 10:
 
     # 5) Run bc.check_selection_tab and show output of the function
     output = st.empty()
-    with cf.cf.st_capture(output.code):
+    with cf.st_capture(output.code):
         bc.check_selection_tab(selection_table_path)
 
     # 6) Show selection table

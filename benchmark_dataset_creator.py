@@ -205,7 +205,7 @@ def check_selection_tab(selection_table_path):
         raise ValueError("Please provide a valid path to an existing folder or file.")
 
 
-def get_bitdepth(export_settings):
+def get_bitdepth(bit_depth):
     """
     Get the bit depth based on user-input export settings. Only FLAC files are supported.
 
@@ -220,7 +220,7 @@ def get_bitdepth(export_settings):
     # write sf.available_subtypes('WAV') to get the bit depth 
     # format supported for wav files
 
-    bit_depth = sf_flac_bit_depth[authorized_user_bit_depth.index(export_settings['Bit depth'])]
+    bit_depth = sf_flac_bit_depth[authorized_user_bit_depth.index(bit_depth)]
     return bit_depth
 
 
@@ -243,7 +243,7 @@ def get_print_fs(fs_original):
 
 # ------------------------
 #  Data checking functions
-def check_bitdepth(export_settings):
+def check_bitdepth(bit_depth):
     """
     Checks if the user-input bit depth is a possible value, based on formats supported by soundfile.write for FLAC files.
 
@@ -260,7 +260,7 @@ def check_bitdepth(export_settings):
     sf_flac_bit_depth = ['PCM_S8', 'PCM_16', 'PCM_24']
 
     # Test if the specified bit depth is supported
-    if export_settings['Bit depth'] not in authorized_user_bit_depth:
+    if bit_depth not in authorized_user_bit_depth:
         # Raise error message if the specified bit depth is not supported
         raise ValueError(
             f"Error: Non-supported Bit depth, please select on of the following values:\n ...{authorized_user_bit_depth}")
@@ -610,7 +610,8 @@ def exports(export_settings, selection_table_af_df, save_sel_dict):
     """
     # Get the export audio file name in the format
     # <Project>_<OriginalFileName>_<OriginalSamplingFrequency>_<OriginalChannel>.flac
-    export_filename = (export_settings['Original project name'] + '_' +
+    export_filename = (export_settings['Project ID'] + '_' +
+                       export_settings['Deployment ID'] + '_' +
                        os.path.splitext(
                            os.path.basename(selection_table_af_df['Begin Path'].iloc[save_sel_dict['Selection #']]))[
                            0] + '_' +
@@ -638,20 +639,17 @@ def exports(export_settings, selection_table_af_df, save_sel_dict):
                  selection_table_af_df[save_sel_dict['Label key']].iloc[save_sel_dict['Selection #']]]
 
     # Write in the selection table (.txt)
-    write_selection_table(os.path.join(export_settings['Annotation export folder'], export_filename + '.txt'),
-                          selection, export_label=export_settings['Export label'])
+    write_selection_table(os.path.join(export_settings['Export folders']['Annotation export folder'], export_filename + '.txt'),
+                          selection, export_label=export_settings['Selections']['Export label'])
 
     # Write in the golbal csv file (.csv)
-    write_annotation_csv(os.path.join(export_settings['Export folder'],
-                                      export_settings['Original project name'],
-                                      export_settings['Original project name'] + '_annotations.csv'),
-                         selection, export_label=export_settings['Export label'])
+    write_annotation_csv(export_settings['Export folders']['Annotation CSV file'],
+                         selection, export_label=export_settings['Selection']['Export label'])
 
     # Write in the file association (.csv)
-    map_audio_selection(os.path.join(export_settings['Export folder'], export_settings['Original project name'],
-                                     export_settings['Original project name'] + '_audio_seltab_map.csv'),
-                        os.path.join(export_settings['Audio export folder'], export_filename + '.flac'),
-                        os.path.join(export_settings['Annotation export folder'], export_filename + '.txt'))
+    map_audio_selection(export_settings['Export folders']['Audio-Seltab Map CSV file'],
+                        os.path.join(export_settings['Export folders']['Audio export folder'], export_filename + '.flac'),
+                        os.path.join(export_settings['Export folders']['Annotation export folder'], export_filename + '.txt'))
 
 
 # -------------------
@@ -679,10 +677,10 @@ def benchmark_size_estimator(selection_table_df, export_settings, label_key):
     unique_audiofiles = selection_table_df['Begin Path'].unique()
 
     # Test if the selected export_settings['Audio duration (s)'] can fit in individual audio files
-    clip_number = get_number_clips(unique_audiofiles, export_settings['Audio duration (s)'])
+    clip_number = get_number_clips(unique_audiofiles, export_settings['Digital sampling']['Audio duration (s)'])
 
     # Test if the bit depth is ok
-    check_bitdepth(export_settings)
+    check_bitdepth(export_settings['Digital sampling']['Bit depth'])
 
     # 2) Get the number of audio files that will be created
     export_filename_list = []
@@ -712,19 +710,22 @@ def benchmark_size_estimator(selection_table_df, export_settings, label_key):
                                 - selection_table_af_df['Begin Time (s)'].iloc[sel])
 
                     # Check which clip chuncks this selection is associated with
-                    sel_in_clip_begintime = np.floor(begin_time / export_settings['Audio duration (s)'])
-                    sel_in_clip_endtime = np.floor(end_time / export_settings['Audio duration (s)'])
+                    sel_in_clip_begintime = \
+                        np.floor(begin_time / export_settings['Digital sampling']['Audio duration (s)'])
+                    sel_in_clip_endtime = \
+                        np.floor(end_time / export_settings['Digital sampling']['Audio duration (s)'])
 
                     # If both begin and end time are in a single clip chunck
                     if sel_in_clip_begintime == sel_in_clip_endtime:
 
                         # Get the timing of the export clip (s)
-                        start_clip = sel_in_clip_begintime * export_settings['Audio duration (s)']
-                        end_clip = start_clip + export_settings['Audio duration (s)']
+                        start_clip = sel_in_clip_begintime * export_settings['Digital sampling']['Audio duration (s)']
+                        end_clip = start_clip + export_settings['Digital sampling']['Audio duration (s)']
 
                         # Get the export audio file name in the format
                         # <Project>_<OriginalFileName>_<OriginalSamplingFrequency>_<OriginalChannel>.flac
-                        export_filename = (export_settings['Original project name'] + '_' +
+                        export_filename = (export_settings['Project ID'] + '_' +
+                                           export_settings['Deployment ID'] + '_' +
                                            os.path.splitext(
                                                os.path.basename(selection_table_af_df['Begin Path'].iloc[sel]))[0]
                                            + '_' + 'ch' + "{:02d}".format(ch + 1) + '_' +
@@ -736,16 +737,17 @@ def benchmark_size_estimator(selection_table_df, export_settings, label_key):
                             count_benchmark_clips += 1
 
     # 3) Calculate the size
-    bd = int(export_settings['Bit depth'])
+    bd = int(export_settings['Digital sampling']['Bit depth'])
     flac_compression = 0.5
-    bit_rate = bd * export_settings['fs (Hz)']
-    audio_file_size_byte = bit_rate * export_settings[
+    bit_rate = bd * export_settings['Digital sampling']['fs (Hz)']
+    audio_file_size_byte = bit_rate * export_settings['Digital sampling'][
         'Audio duration (s)'] * 1 / 8  # nb channels/ nb bits per bytes (8)
     dataset_size_byte = audio_file_size_byte * count_benchmark_clips
 
     # 4) Display 
     print(
-        f"File size are estimated with a flac compression factor of {int(flac_compression * 100)}% which may vary depending on the file.")
+        f"File size are estimated with a flac compression factor of {int(flac_compression * 100)}% which may vary "
+        f"depending on the file.")
     print(f"Estimated file size ... {int(np.round(audio_file_size_byte * 10 ** (-6) * flac_compression))} MB")
 
     if np.round(dataset_size_byte * 10 ** (-6) * flac_compression) > 999:
@@ -789,7 +791,7 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
     unique_audiofiles = selection_table_df['Begin Path'].unique()
 
     # Get the bit depth
-    bit_depth = get_bitdepth(export_settings)
+    bit_depth = get_bitdepth(export_settings['Digital sampling':]['Bit depth'])
 
     # Get total number of clips
     tot_clips = 0
@@ -822,15 +824,17 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
                                 - selection_table_af_df['Begin Time (s)'].iloc[sel])
 
                     # Check which clip chuncks this selection is associated with
-                    sel_in_clip_begintime = np.floor(begin_time / export_settings['Audio duration (s)'])
-                    sel_in_clip_endtime = np.floor(end_time / export_settings['Audio duration (s)'])
+                    sel_in_clip_begintime = \
+                        np.floor(begin_time / export_settings['Digital sampling']['Audio duration (s)'])
+                    sel_in_clip_endtime = \
+                        np.floor(end_time / export_settings['Digital sampling']['Audio duration (s)'])
 
                     # If both begin and end time are in a single clip chunck, that is default and will always be done
                     if sel_in_clip_begintime == sel_in_clip_endtime:
 
                         # Get the timing of the export clip (s)
-                        start_clip = sel_in_clip_begintime * export_settings['Audio duration (s)']
-                        end_clip = start_clip + export_settings['Audio duration (s)']
+                        start_clip = sel_in_clip_begintime * export_settings['Digital sampling']['Audio duration (s)']
+                        end_clip = start_clip + export_settings['Digital sampling']['Audio duration (s)']
 
                         # Create the dictionnary that will have all of the variables for the exports
                         save_sel_dict = {
@@ -850,13 +854,13 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
 
                     # When an annotation is at the limit between two export audio files, 
                     # If there is sufficient amount on either/both sides, keep it if (export_settings['Split export selections'][0] is True)  
-                    elif export_settings['Split export selections'][0] is True:
+                    elif export_settings['Selections']['Split export selections'][0] is True:
                         # Test if the duration before the split is sufficient
-                        if abs(sel_in_clip_endtime * export_settings['Audio duration (s)'] - begin_time) >= \
-                                export_settings['Split export selections'][1]:
+                        if abs(sel_in_clip_endtime * export_settings['Digital sampling']['Audio duration (s)'] - begin_time) >= \
+                                export_settings['Selections']['Split export selections'][1]:
                             # Get the timing of the export clip (s)
-                            start_clip = sel_in_clip_begintime * export_settings['Audio duration (s)']
-                            end_clip = start_clip + export_settings['Audio duration (s)']
+                            start_clip = sel_in_clip_begintime * export_settings['Digital sampling']['Audio duration (s)']
+                            end_clip = start_clip + export_settings['Digital sampling']['Audio duration (s)']
 
                             # Update the begin and end time of the split annotation
                             begin_time = selection_table_af_df['File Offset (s)'].iloc[sel]
@@ -878,11 +882,11 @@ def benchmark_creator(selection_table_df, export_settings, label_key):
                             exports(export_settings, selection_table_af_df, save_sel_dict)
                             tot_clips += 1
                         # Test if the duration after the split is sufficient
-                        elif abs(end_time - sel_in_clip_endtime * export_settings['Audio duration (s)']) >= \
-                                export_settings['Split export selections'][1]:
+                        elif abs(end_time - sel_in_clip_endtime * export_settings['Digital sampling']['Audio duration (s)']) >= \
+                                export_settings['Selections']['Split export selections'][1]:
                             # Get the timing of the export clip (s)
-                            start_clip = sel_in_clip_endtime * export_settings['Audio duration (s)']
-                            end_clip = start_clip + export_settings['Audio duration (s)']
+                            start_clip = sel_in_clip_endtime * export_settings['Digital sampling']['Audio duration (s)']
+                            end_clip = start_clip + export_settings['Digital sampling']['Audio duration (s)']
 
                             # Update the begin and end time of the split annotation
                             begin_time = start_clip
