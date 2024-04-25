@@ -9,6 +9,7 @@ Many bioacoustic projects are sitting on a goldmine of already annotated dataset
 using data that is flexible and repeatable  to train and test AI models for different applications. More details in https://www.overleaf.com/read/yfcgvngmwfbs#e349e7
 
 This notebook aims to create a benchmark dataset and standardize the following:
+* Metadata following ASA standards
 * File duration
 * Sampling frequency
 * Mono channel
@@ -86,10 +87,9 @@ The field illustrated above is a series of user-defined parameters in the form o
 * `Export folder` is where the data will be saved following this structure (example where `<Project>` is 2013_UnivMD_Maryland_71485_MD0)
 ```
 Export_folder/
-│   README.md
-│   file001.txt    
 │
 └───2013_UnivMD_Maryland_71485_MD02/
+    │   2013_UnivMD_Maryland_71485_02_metadata.json   
     │   2013_UnivMD_Maryland_71485_MD02_annotations.csv
     │   2013_UnivMD_Maryland_71485_MD02_audio_seltab_map.csv
     │
