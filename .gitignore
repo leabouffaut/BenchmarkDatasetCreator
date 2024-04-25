@@ -158,6 +158,7 @@ cython_debug/
 
 # Keynote docs
 *.key
+*.mp4
 
 
 # Python requirements file
