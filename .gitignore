@@ -154,7 +154,8 @@ cython_debug/
 
 # macOS system file
 *.DS_Store
-*.idea
+.idea
+.gitattributes
 
 # Keynote docs
 *.key
