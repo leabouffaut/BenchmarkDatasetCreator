@@ -6,8 +6,7 @@ How to install on a Mac
 
 On my Mac, I need to use: 
 	> pip3.9 install --user virtualenv
-	> 
-
+	> python3.9 -m venv venv
 3) Activate the virtual environment
 	> source venv/bin/activate
 Now you should see (venv) on the left of your terminal (don't close it).
@@ -15,11 +14,12 @@ Now you should see (venv) on the left of your terminal (don't close it).
 4) Download the BenchmarkDatasetCreator from the Github Repository and place it in your work folder
 https://github.com/leabouffaut/BenchmarkDatasetCreator/
 
-5) back in the (venv) environment you'll need to install some packages entering the following (check if the folderName for the Benchmark Dataset Creator matches yours)
-	> python3.9 -m pip install -r BenchmarkDatasetCreator-main/requirements.txt
+5) Move the content of BenchmarkDatasetCreator-main to the same level as your venv
+6) back in the (venv) environment you'll need to install some packages entering the following (check if the folderName for the Benchmark Dataset Creator matches yours)
+	> python3.9 -m pip install -r requirements.txt
 
 6) Now you're all set! Start the application using:
-	> streamlit run BenchmarkDatasetCreator-main/BenchmarkDatasetCreator_app/Home.py
+	> streamlit run BenchmarkDatasetCreator_app/Home.py
 
 To stop the app, close the terminal or ctrl+c
 
@@ -29,4 +29,4 @@ After the first installation, to reopen the app:
 1) Activate the virtual environment at the working folder
 	> source venv/bin/activate
 2) Launch the App:
-	> streamlit run BenchmarkDatasetCreator-main/BenchmarkDatasetCreator_app/Home.py
+	> streamlit run BenchmarkDatasetCreator_app/Home.py
