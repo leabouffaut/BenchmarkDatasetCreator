@@ -7,6 +7,7 @@ import os
 import streamlit as st
 import pandas as pd
 import json
+import copy
 
 sys.path.insert(1, '.' + os.sep)
 from BenchmarkDatasetCreator_app import help_dictionary as hd
@@ -272,15 +273,19 @@ if st.session_state.stage >= 13:
     # Add the new labels to the Metadata dictionary
     export_settings['Annotations'] = {
         'LabelKey': label_key,
-        'Used Label List': new_labels_dict.values(),
+        'Used Label List': list(new_labels_dict.values()),
         'Standard': hd.benchmark_creator_info['Annotations']['Standard'],
     }
 
     # 12) Write the metadata
+    dict_oj = copy.deepcopy(original_data_dictionary)
+    dict_export = copy.deepcopy(export_settings)
+
     metadata_save = {
-        'Original data': metadata.transform_original_metadata_to_ASA_standard(original_data_dictionary),
-        'Benchmarked data': metadata.transform_export_metadata_to_ASA_standard(export_settings)
+        'Original data': metadata.transform_original_metadata_to_ASA_standard(dict_oj),
+        'Benchmarked data': metadata.transform_export_metadata_to_ASA_standard(dict_export)
     }
+
     with open(export_folder_dictionary['Metadata file'], 'w') as fp:
         json.dump(metadata_save, fp, indent=4)
 

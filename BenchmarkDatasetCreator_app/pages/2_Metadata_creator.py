@@ -8,6 +8,8 @@
 import json
 import os
 import sys
+import copy
+
 
 import pandas as pd
 import streamlit as st
@@ -401,25 +403,32 @@ else:
 
     # 7) Submit button to write JSON file
     if st.session_state.stage >= 8:
+        dict_oj = copy.deepcopy(original_data_dictionary)
         metadata_save = {
-            'Original data': metadata.transform_original_metadata_to_ASA_standard(original_data_dictionary),
+            'Original data': metadata.transform_original_metadata_to_ASA_standard(dict_oj),
             'Benchmarked data': ''
         }
         with open(export_folder_dictionary['Metadata file'], 'w') as fp:
             json.dump(metadata_save, fp, indent=4)
 
-        st.success('Metadata successfully created!')
-
-        # Save
-        st.session_state.export_folder_dictionary = export_folder_dictionary
-        st.session_state.original_data_dictionary =original_data_dictionary
-
-        # Show on sidebar
-        st.sidebar.write('Metadata file')
-        if st.sidebar.button('Show metadata'):
+        # Metadata announcement
+        meta_txt_col, meta_check_col = st.columns(2)
+        meta_txt_col.success('Metadata successfully created!')
+        #
+        if meta_txt_col.button('Show metadata'):
             st.write('The metadata is saved at:', export_folder_dictionary['Metadata file'])
             st.write('Here is a preview: ')
             st.json(original_data_dictionary)
+
+        # Save
+        st.session_state.export_folder_dictionary = export_folder_dictionary
+        st.session_state.original_data_dictionary = original_data_dictionary
+
+        # Show on sidebar
+        st.sidebar.write('Metadata file')
+        st.sidebar.success(export_folder_dictionary['Metadata file'])
+
+
 
         # Activate next session state
         st.session_state.stage = 9

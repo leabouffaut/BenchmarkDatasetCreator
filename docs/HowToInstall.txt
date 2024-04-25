@@ -6,7 +6,8 @@ How to install on a Mac
 
 On my Mac, I need to use: 
 	> pip3.9 install --user virtualenv
-	> python3.9 -m venv venv
+	> 
+
 3) Activate the virtual environment
 	> source venv/bin/activate
 Now you should see (venv) on the left of your terminal (don't close it).

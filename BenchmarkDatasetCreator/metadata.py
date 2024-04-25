@@ -346,66 +346,66 @@ def test_json_fields(json_data):
     return missing_data
 
 
-def transform_original_metadata_to_ASA_standard(original_metadata_dict):
+def transform_original_metadata_to_ASA_standard(dict):
     """
         Transforms original metadata dictionary to the ASA (Acoustical Society of America) standard format.
 
         Inputs:
-            - original_metadata_dict: Original metadata dictionary to be transformed.
+            - dict: Original metadata dictionary to be transformed.
 
         Returns:
             - Transformed metadata dictionary in the ASA standard.
     """
 
     # Global
-    original_metadata_dict["ProjectId"] = original_metadata_dict.pop("Project ID")
-    original_metadata_dict["DeploymentId"] = original_metadata_dict.pop("Deployment ID")
+    dict["ProjectId"] = dict.pop("Project ID")
+    dict["DeploymentId"] = dict.pop("Deployment ID")
 
     # Data Stewardship
-    original_metadata_dict["DataStewardship"] = original_metadata_dict.pop("Data stewardship")
-    # Each person is entered as an element of the original_metadata_dict["DataStewardship"]  list,
+    dict["DataStewardship"] = dict.pop("Data stewardship")
+    # Each person is entered as an element of the dict["DataStewardship"]  list,
     # so we need to deal with this slightly differently.
-    for entry in range(len(original_metadata_dict["DataStewardship"])):
-        original_metadata_dict["DataStewardship"][entry]["EmailAddress"] = \
-            original_metadata_dict["DataStewardship"][entry].pop("Email Address")
+    for entry in range(len(dict["DataStewardship"])):
+        dict["DataStewardship"][entry]["EmailAddress"] = \
+            dict["DataStewardship"][entry].pop("Email Address")
 
     # Deployment
-    original_metadata_dict['Deployment']["ElevationInstrument_m"] = original_metadata_dict['Deployment'].pop(
+    dict['Deployment']["ElevationInstrument_m"] = dict['Deployment'].pop(
         "Height/depth (m)")
-    original_metadata_dict['Deployment']["Elevation_m"] = original_metadata_dict[
+    dict['Deployment']["Elevation_m"] = dict[
         'Deployment'].pop("Terrain elevation/water depth (m)")
 
     # Sampling details
-    original_metadata_dict["SamplingDetails"] = original_metadata_dict.pop("Sampling details")
+    dict["SamplingDetails"] = dict.pop("Sampling details")
 
     # Sampling details - Time
-    original_metadata_dict["SamplingDetails"]["Timestamp"] = original_metadata_dict["SamplingDetails"].pop("Time")
-    original_metadata_dict["SamplingDetails"]["Timestamp"]["StartUTC"] = \
-        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("UTC Start")
-    original_metadata_dict["SamplingDetails"]["Timestamp"]["EndUTC"] = \
-        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("UTC End")
-    original_metadata_dict["SamplingDetails"]["Timestamp"]["StartLocal"] = \
-        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("Local Start")
-    original_metadata_dict["SamplingDetails"]["Timestamp"]["EndLocal"] = \
-        original_metadata_dict["SamplingDetails"]["Timestamp"].pop("Local End")
+    dict["SamplingDetails"]["Timestamp"] = dict["SamplingDetails"].pop("Time")
+    dict["SamplingDetails"]["Timestamp"]["StartUTC"] = \
+        dict["SamplingDetails"]["Timestamp"].pop("UTC Start")
+    dict["SamplingDetails"]["Timestamp"]["EndUTC"] = \
+        dict["SamplingDetails"]["Timestamp"].pop("UTC End")
+    dict["SamplingDetails"]["Timestamp"]["StartLocal"] = \
+        dict["SamplingDetails"]["Timestamp"].pop("Local Start")
+    dict["SamplingDetails"]["Timestamp"]["EndLocal"] = \
+        dict["SamplingDetails"]["Timestamp"].pop("Local End")
 
     # Sampling details - Digital sampling
-    original_metadata_dict["SamplingDetails"]["DigitalSampling"] = original_metadata_dict["SamplingDetails"].pop(
+    dict["SamplingDetails"]["DigitalSampling"] = dict["SamplingDetails"].pop(
         "Digital sampling")
-    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["SampleRate_kHz"] = \
-        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("Sample rate (kHz)")
-    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["SampleBits"] = \
-        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("Sample Bits")
-    original_metadata_dict["SamplingDetails"]["DigitalSampling"]["DataModifications"] = \
-        original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("Data Modifications")
+    dict["SamplingDetails"]["DigitalSampling"]["SampleRate_kHz"] = \
+        dict["SamplingDetails"]["DigitalSampling"].pop("Sample rate (kHz)")
+    dict["SamplingDetails"]["DigitalSampling"]["SampleBits"] = \
+        dict["SamplingDetails"]["DigitalSampling"].pop("Sample Bits")
+    dict["SamplingDetails"]["DigitalSampling"]["DataModifications"] = \
+        dict["SamplingDetails"]["DigitalSampling"].pop("Data Modifications")
 
     # Annotations
-    original_metadata_dict["Annotations"]["TargetSignals"] = original_metadata_dict["Annotations"].pop("Target signals")
-    original_metadata_dict["Annotations"]["NonTargetSignals"] = original_metadata_dict["Annotations"].pop(
+    dict["Annotations"]["TargetSignals"] = dict["Annotations"].pop("Target signals")
+    dict["Annotations"]["NonTargetSignals"] = dict["Annotations"].pop(
         "Non-target signals")
-    original_metadata_dict["Annotations"]["AnnotationProtocol"] = original_metadata_dict["Annotations"].pop(
+    dict["Annotations"]["AnnotationProtocol"] = dict["Annotations"].pop(
         "Annotation protocol")
-    return original_metadata_dict
+    return dict
 
 
 def transform_export_metadata_to_ASA_standard(export_metadata_dict):
