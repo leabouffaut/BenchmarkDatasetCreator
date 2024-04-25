@@ -1,3 +1,6 @@
+import librosa
+import soundfile as sf
+
 metadata = {
     'Project ID': # Becomes ProjectId in the standard
         "The name of your project. This entry will be used to  keep track of the origin of the data, "
@@ -12,7 +15,9 @@ metadata = {
         'Name': '',
         'Affiliation': '',
         'Email Address': '', # Becomes EmailAddress
-        'DOI': "(Optional) DOI of an associated publication."
+        'Permits': "(Optional) Use this field to report Permits and Permission allowed by state and non-state actors "
+                   "for the data collection, e.g., Permit n°XXXXX, obtained from XXXXX.",
+        'DOI': "(Optional) DOI of an associated publication.",
     },
     'Instrument': {
         'General': "Information on the recording equipment",
@@ -135,8 +140,34 @@ export = {
             'Label list': "Look up the [Yang Center species list](%s) for existing standardized labels and add yours "
                           "to the list!" % url
         },
+        'Annotations': {
+            'Label Key': '', #Becomes LabelKey
+            'Used Label List': "",  # Becomes UsedLabelList
+        }
 
     },
     'Export folder': "Export folder is where the data will be saved.",
 
+}
+
+benchmark_creator_info = {
+    'Method': {
+            'Software': 'Dataset and metadata created using the Benchmark Dataset Creator',
+            'url': 'https://github.com/leabouffaut/BenchmarkDatasetCreator',
+            'Author': 'Léa Bouffaut, Ph.D.',
+            'Institution': 'K. Lisa Yang Center for Conservation Bioacoustics, Cornell University',
+            'Release': 'dev',
+            'Date': 'April 2024'
+    },
+    'Signal Processing': {
+        'Resampling': f'The data is loaded and resampled as requested using Librosa {librosa.__version__}, using the '
+                      f'`soxr_vhq` protocol. See https://librosa.org/doc/main/generated/librosa.resample.html for the '
+                      f'documentation.',
+        'AudioWrite': f'The data is saved with the wanted Bit Depth using Soundfile {sf.__version__}. '
+                      f'See https://python-soundfile.readthedocs.io/en/0.11.0/index.html?highlight=write#soundfile.write'
+                      f' for the documentation.'
+    },
+    'Annotations': {
+        'Standard': url,
+    },
 }

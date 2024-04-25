@@ -1,0 +1,54 @@
+{
+    "Original data": {
+        "Instrument": {
+            "Type": "Cornell - MARU",
+            "Settings": ""
+        },
+        "Deployment": {
+            "Position": {
+                "Lat.": 42.478327,
+                "Lon.": -76.450438
+            },
+            "Env. context": "",
+            "ElevationInstrument_m": 10,
+            "Elevation_m": 10
+        },
+        "Annotations": {
+            "TargetSignals": {
+                "Kind": "CallID"
+            },
+            "NonTargetSignals": {
+                "Noise": "No",
+                "Bio": "Yes",
+                "Anthro": "No",
+                "Geo": "Yes"
+            },
+            "AnnotationProtocol": ""
+        },
+        "ProjectId": "2013_UnivMD_Maryland_71485",
+        "DeploymentId": "02",
+        "DataStewardship": [
+            {
+                "Role": "Contact person",
+                "Name": "adfg",
+                "Affiliation": "afdg",
+                "EmailAddress": "adfg"
+            }
+        ],
+        "SamplingDetails": {
+            "Timestamp": {
+                "StartUTC": "2024-04-01T00:00:00Z",
+                "EndUTC": "2024-04-25T00:00:00Z",
+                "StartLocal": "2024-03-31T20:00:00-04:00",
+                "EndLocal": "2024-04-24T20:00:00-04:00"
+            },
+            "DigitalSampling": {
+                "Clipping": "No",
+                "SampleRate_kHz": 1.0,
+                "SampleBits": 16,
+                "DataModifications": ""
+            }
+        }
+    },
+    "Benchmarked data": ""
+}

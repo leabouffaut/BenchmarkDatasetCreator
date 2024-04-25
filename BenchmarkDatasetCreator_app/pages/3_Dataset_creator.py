@@ -144,14 +144,8 @@ if st.session_state.stage >= 10:
     export_settings = {
         'Project ID': export_folder_dictionary['Project ID'],
         'Deployment ID': export_folder_dictionary['Deployment ID'],
-        'Method': {
-            'Software': 'Dataset and metadata created using the Benchmark Dataset Creator',
-            'url': 'https://github.com/leabouffaut/BenchmarkDatasetCreator',
-            'Author': 'Léa Bouffaut, Ph.D.',
-            'Institution': 'K. Lisa Yang Center for Conservation Bioacoustics, Cornell University',
-            'Release': 'dev',
-            'Date': 'April 2024'
-        },
+        'Method': hd.benchmark_creator_info['Method'],
+        'Signal Processing': hd.benchmark_creator_info['Signal Processing'],
         'Digital sampling': {
             'Audio duration (s)': export_settings_user_input['Audio duration (s)'],
         },
@@ -266,6 +260,7 @@ if st.session_state.stage >= 11:
     col6.button('Continue', help=None, on_click=cm.set_state, args=[12])
 
 if st.session_state.stage >= 12:
+
     # Show button for creating Benchmark dataset
     st.button('Create Benchmark Dataset', help=None, on_click=cm.set_state, args=[13])
 
@@ -276,6 +271,13 @@ if st.session_state.stage >= 13:
 
     # Update the selection table
     selection_table_df_updated = bc.update_labels(selection_table_df, new_labels_dict, label_key)
+
+    # Add the new labels to the Metadata dictionary
+    export_settings['Annotations'] = {
+        'LabelKey': label_key,
+        'Used Label List': new_labels_dict.values(),
+        'Standard': hd.export['Annotations']['Standard'],
+    }
 
     # 12) Write the metadata
     metadata_save = {

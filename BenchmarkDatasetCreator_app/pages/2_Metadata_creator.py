@@ -59,7 +59,7 @@ else:
                      help=hd.metadata['Data stewardship']['General'])
 
         # Create list of authorized roles (based on Zenodo)
-        authorized_roles = ['Contact person', 'Data collector', 'Data curator', 'Distributor',
+        authorized_roles = ['Contact person', 'Data collector', 'Data analyst', 'Dataset curator', 'Distributor',
                             'Hosting institution', 'Principal Investigator', 'Rights holder', 'Sponsor']
 
         # Check if 'rows' is not in the session state and initialize it to 0
@@ -103,8 +103,15 @@ else:
         st.write('Entered dataset co-creators')
         st.dataframe(people_df, use_container_width=True, hide_index=True)
 
-        # Optional associated publication DOI
         original_data_dictionary['Data stewardship'] = {
+            # Information about permits
+            'Permits': st.text_area(
+                'Permit # or Permission and permitting authority',
+                placeholder=hd.metadata['Data stewardship']['Permits'],
+                height=None, max_chars=None, key=None,
+                label_visibility="visible"),
+
+            # Optional associated publication DOI
             'DOI': st.text_input(
                 'Associated publication (DOI) ',
                 value="https://doi.org/XX.XXXXX",
@@ -277,6 +284,7 @@ else:
                 'Sample Bits': int(digital_sampling_col.selectbox(
                     'Bit depth',
                     authorized_bit_depths,
+                    index=1,
                     help=hd.metadata['Sampling details']['Digital sampling'][
                         'Sample Bits'])),
 

@@ -357,22 +357,28 @@ def transform_original_metadata_to_ASA_standard(original_metadata_dict):
             - Transformed metadata dictionary in the ASA standard.
     """
 
+    # Global
     original_metadata_dict["ProjectId"] = original_metadata_dict.pop("Project ID")
     original_metadata_dict["DeploymentId"] = original_metadata_dict.pop("Deployment ID")
 
-
-    print(original_metadata_dict["DataStewardship"])
-    print(original_metadata_dict["DataStewardship"].key["Email Address"])
-    original_metadata_dict["DataStewardship"]["EmailAddress"] = original_metadata_dict["DataStewardship"].pop(
-        "Email Address")
+    # Data Stewardship
     original_metadata_dict["DataStewardship"] = original_metadata_dict.pop("Data stewardship")
+    # Each person is entered as an element of the original_metadata_dict["DataStewardship"]  list,
+    # so we need to deal with this slightly differently.
+    for entry in range(len(original_metadata_dict["DataStewardship"])):
+        original_metadata_dict["DataStewardship"][entry]["EmailAddress"] = \
+            original_metadata_dict["DataStewardship"][entry].pop("Email Address")
 
+    # Deployment
     original_metadata_dict['Deployment']["ElevationInstrument_m"] = original_metadata_dict['Deployment'].pop(
         "Height/depth (m)")
     original_metadata_dict['Deployment']["Elevation_m"] = original_metadata_dict[
         'Deployment'].pop("Terrain elevation/water depth (m)")
 
+    # Sampling details
     original_metadata_dict["SamplingDetails"] = original_metadata_dict.pop("Sampling details")
+
+    # Sampling details - Time
     original_metadata_dict["SamplingDetails"]["Timestamp"] = original_metadata_dict["SamplingDetails"].pop("Time")
     original_metadata_dict["SamplingDetails"]["Timestamp"]["StartUTC"] = \
         original_metadata_dict["SamplingDetails"]["Timestamp"].pop("UTC Start")
@@ -383,6 +389,7 @@ def transform_original_metadata_to_ASA_standard(original_metadata_dict):
     original_metadata_dict["SamplingDetails"]["Timestamp"]["EndLocal"] = \
         original_metadata_dict["SamplingDetails"]["Timestamp"].pop("Local End")
 
+    # Sampling details - Digital sampling
     original_metadata_dict["SamplingDetails"]["DigitalSampling"] = original_metadata_dict["SamplingDetails"].pop(
         "Digital sampling")
     original_metadata_dict["SamplingDetails"]["DigitalSampling"]["SampleRate_kHz"] = \
@@ -392,12 +399,12 @@ def transform_original_metadata_to_ASA_standard(original_metadata_dict):
     original_metadata_dict["SamplingDetails"]["DigitalSampling"]["DataModifications"] = \
         original_metadata_dict["SamplingDetails"]["DigitalSampling"].pop("Data Modifications")
 
+    # Annotations
     original_metadata_dict["Annotations"]["TargetSignals"] = original_metadata_dict["Annotations"].pop("Target signals")
     original_metadata_dict["Annotations"]["NonTargetSignals"] = original_metadata_dict["Annotations"].pop(
         "Non-target signals")
     original_metadata_dict["Annotations"]["AnnotationProtocol"] = original_metadata_dict["Annotations"].pop(
         "Annotation protocol")
-
     return original_metadata_dict
 
 
@@ -415,6 +422,8 @@ def transform_export_metadata_to_ASA_standard(export_metadata_dict):
     export_metadata_dict["ProjectId"] = export_metadata_dict.pop("Project ID")
     export_metadata_dict["DeploymentId"] = export_metadata_dict.pop("Deployment ID")
 
+    export_metadata_dict['SignalProcessing']=export_metadata_dict.pop('Signal Processing')
+
     export_metadata_dict["DigitalSampling"] = export_metadata_dict.pop("Digital sampling")
     export_metadata_dict["DigitalSampling"]["NewAudioDuration_s"] = export_metadata_dict["DigitalSampling"].pop(
         "Audio duration (s)")
@@ -426,6 +435,8 @@ def transform_export_metadata_to_ASA_standard(export_metadata_dict):
     export_metadata_dict["Selections"]["ExportLabel"] = export_metadata_dict["Selections"].pop("Export label")
     export_metadata_dict["Selections"]["SplitExportSelections_bool_s"] = export_metadata_dict["Selections"].pop(
         "Split export selections")
+    export_metadata_dict["Annotations"]["UsedLabelList"] = export_metadata_dict["Annotations"].pop(
+        "Used Label List")
 
     export_metadata_dict["ExportFolders"] = export_metadata_dict.pop("Export folders")
     export_metadata_dict["ExportFolders"]["ExportFolder"] = export_metadata_dict["ExportFolders"].pop("Export folder")
