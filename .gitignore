@@ -161,7 +161,6 @@ cython_debug/
 
 
 # Python requirements file
-requirements.txt
 
 # Data folder 
 benchmark_data/
