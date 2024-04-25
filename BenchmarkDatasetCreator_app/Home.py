@@ -3,7 +3,6 @@ import streamlit as st
 import sys
 import os
 sys.path.insert(1, '.'+ os.sep)
-import benchmark_dataset_creator as bc
 
 st.set_page_config(
     page_title='Benchmark Dataset Creator',
@@ -16,3 +15,6 @@ st.title('Benchmark Dataset Creator')
 #         channels="RGB", output_format="auto")
 
 st.write('Welcome to the Benchmark Dataset Creator')
+
+link_to_metadata = "pages" + os.sep + "1_Project_creator.py"
+st.page_link(link_to_metadata, label=":green[Start with Project Creator]", icon="➡️")

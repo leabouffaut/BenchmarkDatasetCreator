@@ -1,20 +1,17 @@
 # Streamlit app page 3, Dataset creator
-# This page is associated with a series of functions, in benchmark_dataset_creator.py
+# This page is associated with a series of functions, in dataset.py
 # The text help is in
 # Imports
-import json
-import os
 import sys
-import streamlit as st
-import benchmark_dataset_creator as bc
-import create_folders_functions as cf
-import create_metadata_functions as cm
 import os
-import shutil
-sys.path.insert(1, '.' + os.sep)
-import help_dictionary as hd
-
+import streamlit as st
 import pandas as pd
+import json
+
+sys.path.insert(1, '.' + os.sep)
+from BenchmarkDatasetCreator_app import help_dictionary as hd
+from BenchmarkDatasetCreator import dataset, folders, metadata
+
 
 # Titles
 st.set_page_config(
@@ -136,7 +133,7 @@ if st.session_state.stage >= 9:
             export_settings_user_input['Split export selections'], 0]
 
 
-    st.button('Done', help=None, on_click=cm.set_state, args=[10])
+    st.button('Done', help=None, on_click=metadata.set_state, args=[10])
 
 if st.session_state.stage >= 10:
     # 1) continued, Entries in the correct format
@@ -178,8 +175,8 @@ if st.session_state.stage >= 10:
 
     # 3) Run check on the user-defined entries and show output
     output = st.empty()
-    with cf.st_capture(output.code):
-        bc.check_export_settings(export_settings)
+    with folders.st_capture(output.code):
+        dataset.check_export_settings(export_settings)
 
     st.subheader('Load selections')
     # # User-defined path to selection table(s)
@@ -193,13 +190,13 @@ if st.session_state.stage >= 10:
 
     # 4) Load selection table and show output
     output = st.empty()
-    with cf.st_capture(output.code):
-        selection_table_df = bc.load_selection_table(selection_table_path)
+    with folders.st_capture(output.code):
+        selection_table_df = dataset.load_selection_table(selection_table_path)
 
-    # 5) Run bc.check_selection_tab and show output of the function
+    # 5) Run dataset.check_selection_tab and show output of the function
     output = st.empty()
-    with cf.st_capture(output.code):
-        bc.check_selection_tab(selection_table_path)
+    with folders.st_capture(output.code):
+        dataset.check_selection_tab(selection_table_path)
 
     # 6) Show selection table
     col3, col4 = st.columns([3, 1])
@@ -216,7 +213,7 @@ if st.session_state.stage >= 10:
             type="default",
             help=hd.export['Selections']['Label'],
             label_visibility="visible",
-            on_change=cm.set_state, args=[11]),
+            on_change=metadata.set_state, args=[11]),
 
 if st.session_state.stage >= 11:
     label_key = label_key[0]
@@ -228,8 +225,8 @@ if st.session_state.stage >= 11:
     st.subheader('Estimate Benchmark Dataset size')
     with st.spinner("Estimating the size of the Benchmark dataset..."):
         output = st.empty()
-        with cf.st_capture(output.code):
-            bc.benchmark_size_estimator(selection_table_df, export_settings, label_key)
+        with folders.st_capture(output.code):
+            dataset.benchmark_size_estimator(selection_table_df, export_settings, label_key)
 
     # 10) Check & update labels
     st.subheader('Edit labels (Optional)')
@@ -257,12 +254,12 @@ if st.session_state.stage >= 11:
     col6.write(hd.export['Selections']['Label editor']['Label list'])
 
     # Show button for creating Benchmark dataset
-    col6.button('Continue', help=None, on_click=cm.set_state, args=[12])
+    col6.button('Continue', help=None, on_click=metadata.set_state, args=[12])
 
 if st.session_state.stage >= 12:
 
     # Show button for creating Benchmark dataset
-    st.button('Create Benchmark Dataset', help=None, on_click=cm.set_state, args=[13])
+    st.button('Create Benchmark Dataset', help=None, on_click=metadata.set_state, args=[13])
 
 if st.session_state.stage >= 13:
     # 11) Swap the labels
@@ -270,25 +267,25 @@ if st.session_state.stage >= 13:
     new_labels_dict = new_labels_df.set_index('Original labels')['New labels'].to_dict()
 
     # Update the selection table
-    selection_table_df_updated = bc.update_labels(selection_table_df, new_labels_dict, label_key)
+    selection_table_df_updated = dataset.update_labels(selection_table_df, new_labels_dict, label_key)
 
     # Add the new labels to the Metadata dictionary
     export_settings['Annotations'] = {
         'LabelKey': label_key,
         'Used Label List': new_labels_dict.values(),
-        'Standard': hd.export['Annotations']['Standard'],
+        'Standard': hd.benchmark_creator_info['Annotations']['Standard'],
     }
 
     # 12) Write the metadata
     metadata_save = {
-        'Original data': cm.transform_original_metadata_to_ASA_standard(original_data_dictionary),
-        'Benchmarked data': cm.transform_export_metadata_to_ASA_standard(export_settings)
+        'Original data': metadata.transform_original_metadata_to_ASA_standard(original_data_dictionary),
+        'Benchmarked data': metadata.transform_export_metadata_to_ASA_standard(export_settings)
     }
     with open(export_folder_dictionary['Metadata file'], 'w') as fp:
         json.dump(metadata_save, fp, indent=4)
 
     # 13) Create the dataset
     with st.spinner("Creating the Benchmark dataset..."):
-        bc.benchmark_creator(selection_table_df_updated, export_settings, label_key)
+        dataset.benchmark_creator(selection_table_df_updated, export_settings, label_key)
 
     st.success('Benchmark dataset successfully created!')

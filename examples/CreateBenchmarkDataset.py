@@ -5,8 +5,7 @@
 #
 # e.g. runs in Pycharm
 
-import benchmark_dataset_creator as bc
-import pandas as pd
+from BenchmarkDatasetCreator import dataset as bc
 
 # User-defined export settings dictionary
 export_settings = {

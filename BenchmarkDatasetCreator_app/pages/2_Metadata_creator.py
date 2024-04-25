@@ -1,5 +1,5 @@
 # Streamlit app page 2, Metadata input
-# This page is associated with a series of functions, in create_metadata_functions.py
+# This page is associated with a series of functions, in metadata.py
 # The text help for streamlit user inputs is integrated in help_dictionary.py in the metadata dict
 
 # Creates original_data_dictionary
@@ -13,8 +13,8 @@ import pandas as pd
 import streamlit as st
 
 sys.path.insert(1, '.' + os.sep)
-import help_dictionary as hd
-import create_metadata_functions as cm
+from BenchmarkDatasetCreator_app import help_dictionary as hd
+from BenchmarkDatasetCreator import metadata
 
 # Page title (tab and page), Header
 st.set_page_config(
@@ -80,7 +80,7 @@ else:
 
         # Loop through the number of rows and display input fields for each person
         for i in range(st.session_state['rows']):
-            cm.display_input_row(i, authorized_roles)
+            metadata.display_input_row(i, authorized_roles)
 
         # Display the entered information for each person as an interactive DataFrame
         # Create a list to store the entered data
@@ -119,7 +119,7 @@ else:
                 help=hd.metadata['Data stewardship']['DOI'],
                 label_visibility="visible")}
 
-        st.button('Next', key='Next2', help=None, on_click=cm.set_state, args=[4])
+        st.button('Next', key='Next2', help=None, on_click=metadata.set_state, args=[4])
 
     # 3) Add information on the instrumentation
     if st.session_state.stage >= 4:
@@ -161,7 +161,7 @@ else:
                 height=None, max_chars=None, key=None,
                 label_visibility="visible")
         }
-        st.button('Next', key='Next3', help=None, on_click=cm.set_state, args=[5])
+        st.button('Next', key='Next3', help=None, on_click=metadata.set_state, args=[5])
 
     # 4) Add information about the deployment
     if st.session_state.stage >= 5:
@@ -226,7 +226,7 @@ else:
             'lon': [original_data_dictionary['Deployment']['Position']['Lon.']]
         })
         map_col.map(df_map, size=5, zoom=15)
-        st.button('Next', key='Next4', help=None, on_click=cm.set_state, args=[6])
+        st.button('Next', key='Next4', help=None, on_click=metadata.set_state, args=[6])
 
     # 5) Enter sampling details
     if st.session_state.stage >= 6:
@@ -240,16 +240,16 @@ else:
         }
         # Get the start and end time in both local time and UTC
         start_date_time_utc, start_date_time_local = \
-            cm.get_date_time('Recording start', original_data_dictionary)
+            metadata.get_date_time('Recording start', original_data_dictionary)
 
         end_date_time_utc, end_date_time_local = \
-            cm.get_date_time('Recording end', original_data_dictionary)
+            metadata.get_date_time('Recording end', original_data_dictionary)
 
         # If the dates are filled
         if (start_date_time_local is not None and end_date_time_local is not None) and \
                 (start_date_time_local != '' and end_date_time_local != ''):
             # Check the dates make sense:
-            cm.check_dates(start_date_time_local, end_date_time_local)
+            metadata.check_dates(start_date_time_local, end_date_time_local)
 
             # Fill times in the dictionary
             original_data_dictionary['Sampling details']['Time'] = {
@@ -304,7 +304,7 @@ else:
                     height=185)
             }
 
-            st.button('Next', key='Next5', help=None, on_click=cm.set_state, args=[7])
+            st.button('Next', key='Next5', help=None, on_click=metadata.set_state, args=[7])
 
     # 6) Get information on the annotation protocol
     if st.session_state.stage >= 7:
@@ -397,12 +397,12 @@ else:
                 label_visibility="visible",
                 height=254)
 
-        st.button('Submit', key='Submit', help=None, on_click=cm.set_state, args=[8])
+        st.button('Submit', key='Submit', help=None, on_click=metadata.set_state, args=[8])
 
     # 7) Submit button to write JSON file
     if st.session_state.stage >= 8:
         metadata_save = {
-            'Original data': cm.transform_original_metadata_to_ASA_standard(original_data_dictionary),
+            'Original data': metadata.transform_original_metadata_to_ASA_standard(original_data_dictionary),
             'Benchmarked data': ''
         }
         with open(export_folder_dictionary['Metadata file'], 'w') as fp:

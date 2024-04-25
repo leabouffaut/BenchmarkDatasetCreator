@@ -1,6 +1,6 @@
 # Streamlit app page 2, Metadata input
 #
-# This page is associated with a series of functions, in create_folders_functions.py
+# This page is associated with a series of functions, in folders.py
 # The text help for streamlit user inputs is integrated in help_dictionary.py in
 # the folder dictionary
 #
@@ -13,9 +13,8 @@ import streamlit as st
 import shutil
 
 sys.path.insert(1, '.' + os.sep)
-import help_dictionary as hd
-import create_metadata_functions as cm
-import create_folders_functions as cf
+from BenchmarkDatasetCreator_app import help_dictionary as hd
+from BenchmarkDatasetCreator import folders, metadata
 
 # Page title (tab and page), Header
 st.set_page_config(
@@ -64,7 +63,7 @@ if st.session_state.stage >= 0:
             label_visibility="visible"))
     }
 
-    st.button('Create Export folders', on_click=cm.set_state, args=[1])
+    st.button('Create Export folders', on_click=metadata.set_state, args=[1])
 
 # 2) Construct paths for audio and annotations folders based on export settings
 if st.session_state.stage >= 1:
@@ -127,8 +126,8 @@ if st.session_state.stage >= 1:
         st.write(f'Warning: This folder already exists, data may be deleted: \n')
 
         output = st.empty()
-        with cf.st_capture(output.code):
-            cf.path_print(os.path.join(export_folder_dictionary['Export folder'],
+        with folders.st_capture(output.code):
+            folders.path_print(os.path.join(export_folder_dictionary['Export folder'],
                                        export_folder_dictionary['Project ID'] + '_' +
                                        export_folder_dictionary['Deployment ID']))
 
@@ -149,7 +148,7 @@ if st.session_state.stage >= 1:
         if col2.button('Abort', help=None, on_click=set_state, args=[1]):
             # Prompt the user to change the export folder path
             output = st.empty()
-            with cf.st_capture(output.code):
+            with folders.st_capture(output.code):
                 raise ValueError("Please change the export folder path")
 
 if st.session_state.stage >= 2:
@@ -178,7 +177,7 @@ if st.session_state.stage >= 2:
         #
         #if st.button('Verify metadata', help=None):
         #
-        #    missing_data = cm.test_json_fields(json_data)
+        #    missing_data = metadata.test_json_fields(json_data)
         #    # TODO implement a test to check if all metadata fields are present
         #    if missing_data:  # Call this function with your JSON data
         #        st.write('JSON file does not contain all the necessary fields, please use the Metadata Creator')
