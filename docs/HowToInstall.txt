@@ -1,0 +1,22 @@
+
+1) Open terminal at the folder level you want to work (right clic > New Terminal at Folder)
+2) Follow instructions of https://mnzel.medium.com/how-to-activate-python-venv-on-a-mac-a8fa1c3cb511 to create a virtual environment. If you already have python3.9 installed, skip to "Create your virtual environment" which are just the following two lines:
+	> python3.9 -m venv venv
+	> source venv/bin/activate
+
+On my Mac, I need to use: 
+	> pip3.9 install --user virtualenv
+	> python3.9 -m venv venv
+	> source venv/bin/activate
+
+
+Now you should see (venv) on the left of your terminal (don't close it).
+
+3) Download the BenchmarkDatasetCreator from the Github Repository and place it in your work folder
+https://github.com/leabouffaut/BenchmarkDatasetCreator/
+
+4) back in the (venv) environment you'll need to install some packages entering the following (check if the folderName for the Benchmark Dataset Creator matches yours)
+	> python3.9 -m pip install -r BenchmarkDatasetCreator-main/requirements.txt
+
+5) Now you're all set! Start the application using:
+	> streamlit run BenchmarkDatasetCreator-main/BenchmarkDatasetCreator_app/Home.py
