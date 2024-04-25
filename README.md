@@ -26,7 +26,7 @@ It also gives the option to change labels, e.g., to match our standardized label
 
 
 For example, this schematic view presents (top) a Raven Pro project with a selection table associated with several audio files of different lengths, (bottom) the standardized benchmark clips, and associated annotations. Note that annotations at the junction between two export files and those in the remaining audio, which are too short in comparison with the selected export audio file duration, are ignored.
-![‎method_schematicV2](https://github.com/leabouffaut/BenchmarkDatasetCreator/assets/18257956/2f267ee4-54ed-43ce-ab63-fe7932811104)
+![‎method_schematicV2](https://github.com/leabouffaut/BenchmarkDatasetCreator/blob/main/docs/illustrations/method_schematicV3.jpeg)
 
 ### Necessary information in selection tables
 This project uses Raven Pro 1.6 selection tables. Selection tables can either be associated with (1) a single audio file or (2) multiple audio files.
