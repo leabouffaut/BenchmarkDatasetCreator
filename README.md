@@ -64,6 +64,46 @@ Please refer to the [User-defined parameters](#User-defined-parameters) section 
 > * a two-column file-matching CSV (as used for Koogu) and,
 > * a recap annotation CSV file that will match previous datasets, e.g., https://zenodo.org/records/7525805
 
+## How to get started
+The Benchmark Dataset Creator is Python-based code that can be run as an app (supported by Streamlit) that opens in the browser. The dataset-creating functions can also run directly in Python code (currently in dev; see user-defined parameters below). To get started, we suggest the following steps:
+1) Create a work folder
+2) Create and activate a virtual environment in this folder with Python 3.9
+3) Download this repository and unzip it in the work folder; move the contents of the unzipped folder to the same level as your Venv.
+4) Install the packages listed in requirements.txt in the virtual environment
+5) To run the app: streamlit run BenchmarkDatasetCreator_app/Home.py
+6) To close the app, close the terminal or ctrl+c
+
+On my Mac (Macbook Pro 2019, Intel) the series of commands to do these steps:
+1) Open a terminal at the folder (right click > New Terminal at Folder)
+2) Follow the instructions of https://mnzel.medium.com/how-to-activate-python-venv-on-a-mac-a8fa1c3cb511 to create a virtual environment. 
+On my Mac, I need to use: 
+	> `pip3.9 install --user virtualenv`
+	> `python3.9 -m venv venv`
+3) Activate the virtual environment
+	> `source venv/bin/activate`
+Now you should see `(venv)` on the left of your terminal (don't close it).
+
+4) Download the BenchmarkDatasetCreator from this Github Repository and place its content in your work folder, at the same level as the venv folder
+https://github.com/leabouffaut/BenchmarkDatasetCreator/
+
+5) In the ´(venv)´ environment, you'll need to install the required packages by entering the following:
+	> `python3.9 -m pip install -r requirements.txt`
+
+6) Now you're all set! Start the application using:
+	> `streamlit run BenchmarkDatasetCreator_app/Home.py`
+
+To stop the app, close the terminal or ctrl+c
+
+
+After the first installation, to reopen the app:
+1) Activate the virtual environment at the working folder
+	> `source venv/bin/activate`
+2) Launch the App:
+	> `streamlit run BenchmarkDatasetCreator_app/Home.py`
+
+
+
+
 ## User-defined parameters <a id='User-defined-parameters'></a>
 ```ruby
 export_settings = {
