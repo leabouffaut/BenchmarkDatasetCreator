@@ -104,7 +104,7 @@ After the first installation, to reopen the app:
 
 
 
-## User-defined parameters <a id='User-defined-parameters'></a>
+## User-defined parameters (to run the Benchmark Dataset Creator in a .py file or Jupyter notebook (in dev)) <a id='User-defined-parameters'></a>
 ```ruby
 export_settings = {
     'Original project name': '2021_CLOCCB_BermudaPlantBank_S1105', 
