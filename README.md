@@ -65,7 +65,10 @@ Please refer to the [User-defined parameters](#User-defined-parameters) section 
 > * a recap annotation CSV file that will match previous datasets, e.g., https://zenodo.org/records/7525805
 
 ## How to get started
-The Benchmark Dataset Creator is Python-based code that can be run as an app (supported by Streamlit) that opens in the browser. The dataset-creating functions can also run directly in Python code (currently in dev; see user-defined parameters below). To get started, we suggest the following steps:
+The Benchmark Dataset Creator is Python-based code that can be run as an app (supported by Streamlit) that opens in the browser. The dataset-creating functions can also run directly in Python code (currently in dev; see user-defined parameters below). 
+
+### General workflow to install the app
+To get started, we suggest the following steps:
 1) Create a work folder
 2) Create and activate a virtual environment in this folder with Python 3.9
 3) Download this repository and unzip it in the work folder; move the contents of the unzipped folder to the same level as your Venv.
@@ -73,6 +76,7 @@ The Benchmark Dataset Creator is Python-based code that can be run as an app (su
 5) To run the app: streamlit run BenchmarkDatasetCreator_app/Home.py
 6) To close the app, close the terminal or ctrl+c
 
+### Install and run the app on a Mac
 On my Mac (Macbook Pro 2019, Intel) the series of commands to do these steps:
 1) Open a terminal at the folder (right click > New Terminal at Folder)
 2) Follow the instructions of https://mnzel.medium.com/how-to-activate-python-venv-on-a-mac-a8fa1c3cb511 to create a virtual environment. 
